@@ -326,32 +326,23 @@
     let tiposEquipe = [];
 
     async function executarNoBackend(funcao, parametros = null) {
-  const url = `${WEB_APP_URL}?action=${encodeURIComponent(funcao)}${
+  const sep = WEB_APP_URL.includes('?') ? '&' : '?';
+  const url = `${WEB_APP_URL}${sep}action=${encodeURIComponent(funcao)}${
     parametros ? '&data=' + encodeURIComponent(JSON.stringify(parametros)) : ''
   }&_=${Date.now()}`;
 
-  try {
-    const response = await fetch(url, {
-      method: 'GET',
-      mode: 'cors',
-      redirect: 'follow',
-      credentials: 'omit'
-    });
+  const response = await fetch(url);
+  const texto = await response.text();
 
-    const texto = await response.text();
-
-    // Se vier HTML (erro de permissão/redirect), você vai ver aqui
-    if (!texto || texto.trim().startsWith('<')) {
-      console.error('Resposta não-JSON (provável CORS/perm):', texto.slice(0, 200));
-      return null;
-    }
-
-    return JSON.parse(texto);
-  } catch (e) {
-    console.error('Erro na comunicação:', e);
+  // Se vier HTML, é erro/permissão e o navegador “disfarça” como CORS
+  if (texto.trim().startsWith('<')) {
+    console.error('Backend retornou HTML:', texto.slice(0, 300));
     return null;
   }
+
+  return JSON.parse(texto);
 }
+
 
 
     function trocarAba(idAba, botao = null) {
