@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cadastro e Consulta de Vistoria</title>
   <style>
+    /* ... TODOS OS SEUS ESTILOS ORIGINAIS ... */
     :root {
       --azul: #00aeef;
       --azul-escuro: #0b132b;
@@ -18,192 +19,42 @@
       --vermelho: #ff6b6b;
       --amarelo: #f1c40f;
     }
-
     * { box-sizing: border-box; }
-
     body {
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
       font-family: "Segoe UI", Roboto, Arial, sans-serif;
       background: radial-gradient(circle at top, var(--azul-escuro), var(--preto));
       color: var(--texto);
     }
-
-    .app {
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 24px 16px 40px;
-    }
-
-    h2 {
-      text-align: center;
-      color: var(--azul);
-      margin-bottom: 20px;
-      font-weight: 600;
-      letter-spacing: 1px;
-    }
-
-    .abas {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    .aba-btn {
-      border: 1px solid var(--borda);
-      color: var(--texto);
-      background: #0b1a2f;
-      border-radius: 10px;
-      padding: 10px 14px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .aba-btn.ativa {
-      background: linear-gradient(135deg, #007cf0, #00dfd8);
-      border: none;
-    }
-
+    .app { width: 100%; max-width: 1200px; margin: 0 auto; padding: 24px 16px 40px; }
+    h2 { text-align: center; color: var(--azul); margin-bottom: 20px; font-weight: 600; letter-spacing: 1px; }
+    .abas { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .aba-btn { border: 1px solid var(--borda); color: var(--texto); background: #0b1a2f; border-radius: 10px; padding: 10px 14px; cursor: pointer; font-weight: 600; }
+    .aba-btn.ativa { background: linear-gradient(135deg, #007cf0, #00dfd8); border: none; }
     .aba-conteudo { display: none; }
     .aba-conteudo.ativa { display: block; }
-
-    .topo, .painel {
-      background: var(--cinza-card);
-      padding: 18px;
-      border-radius: 18px;
-      border: 1px solid var(--borda);
-      margin-bottom: 20px;
-    }
-
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px;
-      align-items: end;
-    }
-
-    label {
-      font-size: 12px;
-      font-weight: 600;
-      margin-top: 10px;
-      display: block;
-      color: var(--texto-sec);
-    }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 10px 12px;
-      margin-top: 6px;
-      border-radius: 10px;
-      border: 1px solid var(--borda);
-      font-size: 14px;
-      background: #0b1a2f;
-      color: var(--texto);
-      transition: border 0.2s, box-shadow 0.2s;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: var(--azul);
-      box-shadow: 0 0 0 2px rgba(0, 174, 239, 0.25);
-    }
-
-    textarea { resize: vertical; min-height: 60px; }
-
-    button {
-      border-radius: 12px;
-      border: none;
-      padding: 12px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.1s, box-shadow 0.1s, opacity 0.1s;
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
-      opacity: 0.95;
-    }
-
-    .btn-id { background: linear-gradient(135deg, #007cf0, #00dfd8); color: #fff; margin-top: 18px; }
-    .btn-voz { background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; margin-top: 12px; }
-    .btn-salvar { background: linear-gradient(135deg, var(--azul), var(--verde)); color: #fff; margin-top: 20px; }
+    .topo, .painel { background: var(--cinza-card); padding: 18px; border-radius: 18px; border: 1px solid var(--borda); margin-bottom: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; align-items: end; }
+    label { font-size: 12px; font-weight: 600; margin-top: 10px; display: block; color: var(--texto-sec); }
+    input, select, textarea { width: 100%; padding: 10px 12px; margin-top: 6px; border-radius: 10px; border: 1px solid var(--borda); font-size: 14px; background: #0b1a2f; color: var(--texto); }
+    button { border-radius: 12px; border: none; padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .btn-id { background: linear-gradient(135deg, #007cf0, #00dfd8); color: #fff; margin-top: 18px; width: 100%; }
+    .btn-voz { background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; margin-top: 12px; width: 100%; }
+    .btn-salvar { background: linear-gradient(135deg, var(--azul), var(--verde)); color: #fff; margin-top: 20px; width: 100%; }
     .btn-excluir-id { background: linear-gradient(135deg, #ff6b6b, #8e0000); color: #fff; }
     .btn-excluir { background: linear-gradient(135deg, #ff4d4d, #c0392b); color: #fff; margin-top: 10px; }
     .btn-consultar { background: linear-gradient(135deg, #8e44ad, #6c5ce7); color: #fff; }
     .btn-limpar { background: #34495e; color: #fff; }
     .btn-editar { background: linear-gradient(135deg, #f39c12, #d35400); color: #fff; }
-
-    .box {
-      background: var(--cinza-card);
-      border-radius: 18px;
-      padding: 18px;
-      margin-top: 18px;
-      border: 1px solid var(--borda);
-    }
-
-    .voz {
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 14px;
-      padding: 14px;
-      margin-top: 14px;
-      border-left: 4px solid var(--verde);
-    }
-
-    .whatsapp { background: #25d366; color: #fff; margin-top: 10px; }
-
-    .resultado-grupo {
-      background: #0d1f35;
-      border: 1px solid var(--borda);
-      border-radius: 12px;
-      margin-top: 16px;
-      overflow: hidden;
-    }
-
-    .resultado-header {
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--borda);
-      font-weight: 600;
-      color: var(--azul);
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .resultado-item {
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--borda);
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px;
-    }
-
-    .resultado-item:last-child { border-bottom: none; }
-
-    .acoes {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .badge {
-      display: inline-block;
-      border-radius: 99px;
-      padding: 2px 9px;
-      font-size: 12px;
-      color: #111;
-      font-weight: 700;
-      background: var(--amarelo);
-      margin-right: 8px;
-    }
-
-    .muted { color: var(--texto-sec); }
-    .vazio { padding: 14px; color: var(--texto-sec); }
+    .box { background: var(--cinza-card); border-radius: 18px; padding: 18px; margin-top: 18px; border: 1px solid var(--borda); }
+    .voz { background: rgba(255, 255, 255, 0.03); border-radius: 14px; padding: 14px; margin-top: 14px; border-left: 4px solid var(--verde); }
+    .whatsapp { background: #25d366; color: #fff; margin-top: 10px; width: 100%; }
+    .resultado-grupo { background: #0d1f35; border: 1px solid var(--borda); border-radius: 12px; margin-top: 16px; overflow: hidden; }
+    .resultado-header { padding: 12px 14px; border-bottom: 1px solid var(--borda); font-weight: 600; color: var(--azul); display: flex; justify-content: space-between; }
+    .resultado-item { padding: 12px 14px; border-bottom: 1px solid var(--borda); display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+    .badge { border-radius: 99px; padding: 2px 9px; font-size: 12px; color: #111; font-weight: 700; background: var(--amarelo); margin-right: 8px; }
+    .muted { color: var(--texto-sec); font-size: 13px; }
+    .vazio { padding: 14px; color: var(--texto-sec); text-align: center; }
   </style>
 </head>
 <body>
@@ -216,6 +67,7 @@
       <button class="aba-btn" id="abaEdicao" style="display:none" onclick="trocarAba('edicao', this)">Edição</button>
     </div>
 
+    <!-- SEÇÃO CADASTRO -->
     <section id="cadastro" class="aba-conteudo ativa">
       <div class="topo">
         <label>SGM</label>
@@ -234,80 +86,43 @@
       <button class="btn-salvar" onclick="salvar()">💾 Salvar</button>
     </section>
 
+    <!-- SEÇÃO CONSULTA -->
     <section id="consulta" class="aba-conteudo">
       <div class="painel">
         <div class="grid-3">
-          <div>
-            <label>Pesquisar SGM</label>
-            <input id="qSgm" type="text" placeholder="Ex.: SGM-123">
-          </div>
-          <div>
-            <label>Pesquisar IDGOM</label>
-            <input id="qId" type="text" placeholder="Ex.: 456789">
-          </div>
-          <div>
-            <label>Pesquisar Estrutura</label>
-            <input id="qEstrutura" type="text" placeholder="Ex.: P-10">
-          </div>
+          <div><label>Pesquisar SGM</label><input id="qSgm" type="text" placeholder="Ex.: SGM-123"></div>
+          <div><label>Pesquisar IDGOM</label><input id="qId" type="text" placeholder="Ex.: 456789"></div>
+          <div><label>Pesquisar Estrutura</label><input id="qEstrutura" type="text" placeholder="Ex.: P-10"></div>
         </div>
-        <div class="acoes" style="margin-top:12px">
+        <div class="acoes" style="margin-top:12px; display: flex; gap: 8px;">
           <button class="btn-consultar" onclick="consultarRegistros()">🔎 Consultar</button>
           <button class="btn-limpar" onclick="limparConsulta()">Limpar</button>
         </div>
       </div>
-
       <div id="resultadoConsulta" class="painel">
         <div class="vazio">Faça uma consulta para visualizar os registros agrupados.</div>
       </div>
     </section>
 
+    <!-- SEÇÃO EDIÇÃO -->
     <section id="edicao" class="aba-conteudo">
       <div class="painel">
         <h3 style="margin-top:0">Edição de Registro</h3>
-        <p class="muted" style="margin-top:0">Ajuste os campos e clique em salvar edição.</p>
-
         <input type="hidden" id="editRegistroId">
-
-        <label>SGM</label>
-        <input id="editSgm" type="text">
-
+        <label>SGM</label><input id="editSgm" type="text">
         <div class="grid-3">
-          <div>
-            <label>Alimentador</label>
-            <input id="editAlimentador" type="text">
-          </div>
-          <div>
-            <label>IDGOM</label>
-            <input id="editIdgom" type="text">
-          </div>
-          <div>
-            <label>Estrutura</label>
-            <input id="editEstrutura" type="text">
-          </div>
+          <div><label>Alimentador</label><input id="editAlimentador" type="text"></div>
+          <div><label>IDGOM</label><input id="editIdgom" type="text"></div>
+          <div><label>Estrutura</label><input id="editEstrutura" type="text"></div>
         </div>
-
         <div class="grid-3">
-          <div>
-            <label>Voz</label>
-            <input id="editVoz" type="text">
-          </div>
-          <div>
-            <label>Quantidade</label>
-            <input id="editQuantidade" type="number">
-          </div>
-          <div>
-            <label>Tipo de Equipe</label>
-            <input id="editTipoEquipe" type="text">
-          </div>
+          <div><label>Voz</label><input id="editVoz" type="text"></div>
+          <div><label>Quantidade</label><input id="editQuantidade" type="number"></div>
+          <div><label>Tipo de Equipe</label><input id="editTipoEquipe" type="text"></div>
         </div>
-
-        <label>Observação</label>
-        <input id="editObservacao" type="text">
-
-        <label>Descrição</label>
-        <textarea id="editDescricao"></textarea>
-
-        <div class="acoes" style="margin-top:14px">
+        <label>Observação</label><input id="editObservacao" type="text">
+        <label>Descrição</label><textarea id="editDescricao"></textarea>
+        <div class="acoes" style="margin-top:14px; display: flex; gap: 8px;">
           <button class="btn-salvar" onclick="salvarEdicao()">💾 Salvar edição</button>
           <button class="btn-limpar" onclick="cancelarEdicao()">Cancelar</button>
         </div>
@@ -316,46 +131,26 @@
   </div>
 
   <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw93FgcN2tkLrpI-33NQ0KNdk5GZEV9rVWHpXshOykyAur0meqZPK7lOSMNHZFnI_oCNw/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz-t9TfYJ4jo998urTIBacQPGaMTwErCiy0KssOlrQZfU5bJzV0OjzKAJ3Rt3rLVv_MWA/exec";
 
-    let sgms = [];
-    let alimentadores = [];
-    let idsSGM = [];
-    let vozes = [];
-    let observacoes = [];
-    let tiposEquipe = [];
+    let sgms = [], alimentadores = [], idsSGM = [], vozes = [], observacoes = [], tiposEquipe = [];
 
-function executarNoBackend(funcao, parametros = null) {
-  return new Promise((resolve, reject) => {
-    const cb = `cb_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
-
-    window[cb] = (data) => {
-      try { resolve(data); }
-      finally {
-        delete window[cb];
-        script.remove();
-      }
-    };
-
-    const sep = WEB_APP_URL.includes('?') ? '&' : '?';
-    const url = `${WEB_APP_URL}${sep}action=${encodeURIComponent(funcao)}${
-      parametros ? '&data=' + encodeURIComponent(JSON.stringify(parametros)) : ''
-    }&callback=${cb}&_=${Date.now()}`;
-
-    const script = document.createElement('script');
-    script.src = url;
-    script.onerror = () => {
-      delete window[cb];
-      script.remove();
-      reject(new Error('Falha ao carregar JSONP (verifique implantação/URL).'));
-    };
-
-    document.body.appendChild(script);
-  });
-}
-
-
-
+    // --- FUNÇÃO DE CONEXÃO JSONP ---
+    function executarNoBackend(funcao, parametros = null) {
+      return new Promise((resolve) => {
+        const cb = `cb_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+        window[cb] = (data) => {
+          resolve(data);
+          delete window[cb];
+          document.body.removeChild(script);
+        };
+        const script = document.createElement('script');
+        const sep = WEB_APP_URL.includes('?') ? '&' : '?';
+        const dataStr = encodeURIComponent(JSON.stringify(parametros));
+        script.src = `${WEB_APP_URL}${sep}action=${funcao}&data=${dataStr}&callback=${cb}`;
+        document.body.appendChild(script);
+      });
+    }
 
     function trocarAba(idAba, botao = null) {
       document.querySelectorAll('.aba-conteudo').forEach(sec => sec.classList.remove('ativa'));
@@ -365,43 +160,27 @@ function executarNoBackend(funcao, parametros = null) {
     }
 
     async function carregarDadosIniciais() {
-      const listaSGM = await executarNoBackend('buscarListaSGM');
-      if (listaSGM) {
-        sgms = listaSGM;
-        atualizarListaSGM(sgms);
-      }
-
-      const listaVist = await executarNoBackend('buscarVistoriadores');
-      if (listaVist) {
-        const select = document.getElementById('vistoriador');
-        select.innerHTML = '<option value="">Selecione</option>';
-        listaVist.forEach(v => {
-          const opt = document.createElement('option');
-          opt.value = v;
-          opt.textContent = v;
-          select.appendChild(opt);
-        });
-      }
+      sgms = await executarNoBackend('buscarListaSGM') || [];
+      atualizarListaSGM(sgms);
+      
+      const vists = await executarNoBackend('buscarVistoriadores') || [];
+      const sel = document.getElementById('vistoriador');
+      vists.forEach(v => sel.innerHTML += `<option value="${v}">${v}</option>`);
 
       vozes = await executarNoBackend('buscarVozes') || [];
       observacoes = await executarNoBackend('buscarObservacoes') || [];
       tiposEquipe = await executarNoBackend('buscarTiposEquipe') || [];
+      adicionarID(); 
     }
 
     function filtrarSGM() {
-      const valor = document.getElementById('sgm').value.toLowerCase();
-      const filtrados = sgms.filter(s => s.toLowerCase().includes(valor));
-      atualizarListaSGM(filtrados);
+      const val = document.getElementById('sgm').value.toLowerCase();
+      atualizarListaSGM(sgms.filter(s => s.toLowerCase().includes(val)));
     }
 
     function atualizarListaSGM(lista) {
-      const datalist = document.getElementById('listaSGM');
-      datalist.innerHTML = '';
-      lista.forEach(sgm => {
-        const opt = document.createElement('option');
-        opt.value = sgm;
-        datalist.appendChild(opt);
-      });
+      const dl = document.getElementById('listaSGM');
+      dl.innerHTML = lista.map(s => `<option value="${s}">`).join('');
     }
 
     async function buscarSGM() {
@@ -418,61 +197,44 @@ function executarNoBackend(funcao, parametros = null) {
       const div = document.createElement('div');
       div.className = 'box';
       div.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
-          <strong style="color:#00AEEF">IDGOM</strong>
-          <button class="btn-excluir-id" onclick="excluirIDGOM(this)">🗑️ Excluir IDGOM</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
+          <strong style="color:var(--azul)">IDGOM</strong>
+          <button class="btn-excluir-id" onclick="this.closest('.box').remove()">🗑️ Excluir</button>
         </div>
-        <label>Alimentador</label>
-        <input list="listaAlimentador">
-        <datalist id="listaAlimentador">${alimentadores.map(a => `<option value="${a}">`).join('')}</datalist>
-        <label>IDGOM</label>
-        <input list="listaIDGOM">
-        <datalist id="listaIDGOM">${idsSGM.map(i => `<option value="${i}">`).join('')}</datalist>
-        <label>Estrutura</label>
-        <input type="text">
-        <div class="vozes"></div>
+        <label>Alimentador</label><input list="listaAlm" class="f-alm">
+        <datalist id="listaAlm">${alimentadores.map(a => `<option value="${a}">`).join('')}</datalist>
+        <label>IDGOM</label><input list="listaId" class="f-id">
+        <datalist id="listaId">${idsSGM.map(i => `<option value="${i}">`).join('')}</datalist>
+        <label>Estrutura</label><input type="text" class="f-est">
+        <div class="vozes-container"></div>
         <button class="btn-voz" onclick="adicionarVoz(this)">➕ Adicionar Voz</button>
       `;
       document.getElementById('ids').appendChild(div);
     }
 
-    function adicionarVoz(botao) {
-      const divVoz = document.createElement('div');
-      divVoz.className = 'voz';
-      divVoz.innerHTML = `
-        <label>Voz</label>
-        <select>${vozes.map(v => `<option value="${v}">${v}</option>`).join('')}</select>
-        <label>Quantidade</label>
-        <input type="number">
-        <label>Observação</label>
-        <select onchange="verificaWhats(this)">${observacoes.map(o => `<option value="${o}">${o}</option>`).join('')}</select>
-        <label>Descrição</label>
-        <textarea></textarea>
-        <label>Tipo de Equipe</label>
-        <select>${tiposEquipe.map(t => `<option value="${t}">${t}</option>`).join('')}</select>
+    function adicionarVoz(btn) {
+      const div = document.createElement('div');
+      div.className = 'voz';
+      div.innerHTML = `
+        <label>Voz</label><select class="v-voz">${vozes.map(v => `<option value="${v}">${v}</option>`).join('')}</select>
+        <label>Quantidade</label><input type="number" class="v-qtd">
+        <label>Observação</label><select class="v-obs" onchange="verificaWhats(this)">${observacoes.map(o => `<option value="${o}">${o}</option>`).join('')}</select>
+        <label>Descrição</label><textarea class="v-desc"></textarea>
+        <label>Tipo de Equipe</label><select class="v-tipo">${tiposEquipe.map(t => `<option value="${t}">${t}</option>`).join('')}</select>
         <button class="whatsapp" style="display:none" onclick="enviarWhats(this)">📲 Enviar WhatsApp</button>
-        <button class="btn-excluir" onclick="excluirVoz(this)">🗑️ Excluir Voz</button>
+        <button class="btn-excluir" onclick="this.closest('.voz').remove()">🗑️ Excluir Voz</button>
       `;
-      botao.previousElementSibling.appendChild(divVoz);
+      btn.previousElementSibling.appendChild(div);
     }
 
-    function normalizarTexto(valor) {
-      return String(valor || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
-    }
-
-    function verificaWhats(select) {
-      const btn = select.closest('.voz')?.querySelector('.whatsapp');
-      if (!btn) return;
-      btn.style.display = normalizarTexto(select.value) === 'poda extra' ? 'block' : 'none';
+    function verificaWhats(sel) {
+      const btn = sel.closest('.voz').querySelector('.whatsapp');
+      btn.style.display = sel.value.toLowerCase().includes('poda extra') ? 'block' : 'none';
     }
 
     function enviarWhats(btn) {
       const box = btn.closest('.box');
-      const texto = `Projeto (SGM): ${document.getElementById('sgm').value}
-Alimentador: ${box.querySelectorAll('input')[0].value}
-Estrutura: ${box.querySelectorAll('input')[2].value}
-IDGOM: ${box.querySelectorAll('input')[1].value}
-Descrição: ${btn.parentElement.querySelector('textarea').value}`.trim();
+      const texto = `SGM: ${document.getElementById('sgm').value}\nID: ${box.querySelector('.f-id').value}\nEst: ${box.querySelector('.f-est').value}\nDesc: ${btn.closest('.voz').querySelector('.v-desc').value}`;
       window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`);
     }
 
@@ -482,140 +244,73 @@ Descrição: ${btn.parentElement.querySelector('textarea').value}`.trim();
         vistoriador: document.getElementById('vistoriador').value,
         registros: []
       };
+      if(!payload.sgm || !payload.vistoriador) return alert("SGM e Vistoriador obrigatórios");
 
       document.querySelectorAll('.box').forEach(box => {
-        const inputs = box.querySelectorAll('input');
-        const alimentador = inputs[0].value;
-        const idgom = inputs[1].value;
-        const estrutura = inputs[2].value;
-
+        const alm = box.querySelector('.f-alm').value;
+        const idgom = box.querySelector('.f-id').value;
+        const est = box.querySelector('.f-est').value;
         box.querySelectorAll('.voz').forEach(v => {
-          const selects = v.querySelectorAll('select');
           payload.registros.push({
-            alimentador,
-            idgom,
-            estrutura,
-            voz: selects[0].value,
-            quantidade: v.querySelector('input').value,
-            observacao: selects[1].value,
-            descricao: v.querySelector('textarea').value,
-            tipoEquipe: selects[2].value
+            alimentador: alm, idgom: idgom, estrutura: est,
+            voz: v.querySelector('.v-voz').value,
+            quantidade: v.querySelector('.v-qtd').value,
+            observacao: v.querySelector('.v-obs').value,
+            descricao: v.querySelector('.v-desc').value,
+            tipoEquipe: v.querySelector('.v-tipo').value
           });
         });
       });
 
       const senha = prompt('Digite sua senha:');
-      if (!senha) return alert('Senha obrigatória.');
-
+      if (!senha) return;
       const res = await executarNoBackend('salvarBaseComSenha', { payload, senha });
-      if (res && res.ok) {
-        alert('Dados salvos com sucesso!');
-      } else {
-        alert('Erro ou senha incorreta.');
-      }
-    }
-
-    function excluirVoz(botao) {
-      if (confirm('Deseja excluir esta voz?')) botao.closest('.voz').remove();
-    }
-
-    function excluirIDGOM(botao) {
-      if (confirm('Deseja excluir este IDGOM?')) botao.closest('.box').remove();
-    }
-
-    function limparConsulta() {
-      document.getElementById('qSgm').value = '';
-      document.getElementById('qId').value = '';
-      document.getElementById('qEstrutura').value = '';
-      document.getElementById('resultadoConsulta').innerHTML = '<div class="vazio">Faça uma consulta para visualizar os registros agrupados.</div>';
+      if (res?.ok) { alert('Salvo!'); location.reload(); } else alert('Erro!');
     }
 
     async function consultarRegistros() {
       const filtros = {
-        sgm: document.getElementById('qSgm').value.trim(),
-        idgom: document.getElementById('qId').value.trim(),
-        estrutura: document.getElementById('qEstrutura').value.trim()
+        sgm: document.getElementById('qSgm').value,
+        idgom: document.getElementById('qId').value,
+        estrutura: document.getElementById('qEstrutura').value
       };
-
-      const resultadoBox = document.getElementById('resultadoConsulta');
-      resultadoBox.innerHTML = '<div class="vazio">Consultando...</div>';
-
-      const dados = await executarNoBackend('consultarRegistros', filtros);
-      const lista = Array.isArray(dados) ? dados : dados?.registros || [];
-
-      if (!lista.length) {
-        resultadoBox.innerHTML = '<div class="vazio">Nenhum registro encontrado para os filtros informados.</div>';
-        return;
-      }
-
-      renderizarConsultaAgrupada(lista);
+      const res = await executarNoBackend('consultarRegistros', filtros);
+      renderizarConsultaAgrupada(res || []);
     }
 
     function renderizarConsultaAgrupada(lista) {
-      const agrupado = {};
-      lista.forEach(item => {
-        const sgm = item.sgm || 'Sem SGM';
-        const idgom = item.idgom || 'Sem IDGOM';
-        const estrutura = item.estrutura || 'Sem Estrutura';
-        agrupado[sgm] ??= {};
-        agrupado[sgm][idgom] ??= {};
-        agrupado[sgm][idgom][estrutura] ??= [];
-        agrupado[sgm][idgom][estrutura].push(item);
-      });
-
-      const resultadoBox = document.getElementById('resultadoConsulta');
-      resultadoBox.innerHTML = '';
-
-      Object.entries(agrupado).forEach(([sgm, porId]) => {
-        Object.entries(porId).forEach(([idgom, porEstrutura]) => {
-          Object.entries(porEstrutura).forEach(([estrutura, itens]) => {
-            const grupo = document.createElement('div');
-            grupo.className = 'resultado-grupo';
-            grupo.innerHTML = `
-              <div class="resultado-header">
-                <div>
-                  <span class="badge">${itens.length} registro(s)</span>
-                  SGM: ${sgm} | IDGOM: ${idgom} | Estrutura: ${estrutura}
-                </div>
-              </div>
-            `;
-
-            itens.forEach(reg => {
-              const item = document.createElement('div');
-              item.className = 'resultado-item';
-              item.innerHTML = `
-                <div>
-                  <strong>Voz:</strong> ${reg.voz || '-'} &nbsp; 
-                  <strong>Qtd:</strong> ${reg.quantidade || '-'} &nbsp; 
-                  <strong>Obs:</strong> ${reg.observacao || '-'}<br>
-                  <span class="muted"><strong>Descrição:</strong> ${reg.descricao || '-'} | <strong>Equipe:</strong> ${reg.tipoEquipe || '-'}</span>
-                </div>
-                <div class="acoes">
-                  <button class="btn-editar" onclick='abrirEdicao(${JSON.stringify(reg)})'>✏️ Editar</button>
-                  <button class="btn-excluir" onclick='excluirRegistro(${JSON.stringify(reg)})'>🗑️ Excluir</button>
-                </div>
-              `;
-              grupo.appendChild(item);
-            });
-
-            resultadoBox.appendChild(grupo);
-          });
-        });
+      const resBox = document.getElementById('resultadoConsulta');
+      resBox.innerHTML = lista.length ? '' : '<div class="vazio">Nenhum registro.</div>';
+      
+      lista.forEach(reg => {
+        const grupo = document.createElement('div');
+        grupo.className = 'resultado-grupo';
+        grupo.innerHTML = `
+          <div class="resultado-header">SGM: ${reg.sgm} | ID: ${reg.idgom} | Est: ${reg.estrutura}</div>
+          <div class="resultado-item">
+            <div><strong>Voz:</strong> ${reg.voz} | <strong>Qtd:</strong> ${reg.quantidade} | <strong>Equipe:</strong> ${reg.tipo_de_equipe}</div>
+            <div class="acoes">
+              <button class="btn-editar" onclick='abrirEdicao(${JSON.stringify(reg)})'>✏️</button>
+              <button class="btn-excluir" onclick='excluirRegistro(${JSON.stringify(reg)})'>🗑️</button>
+            </div>
+          </div>
+        `;
+        resBox.appendChild(grupo);
       });
     }
 
-    function abrirEdicao(registro) {
+    function abrirEdicao(reg) {
       document.getElementById('abaEdicao').style.display = 'inline-block';
-      document.getElementById('editRegistroId').value = registro.id || registro.linha || '';
-      document.getElementById('editSgm').value = registro.sgm || '';
-      document.getElementById('editAlimentador').value = registro.alimentador || '';
-      document.getElementById('editIdgom').value = registro.idgom || '';
-      document.getElementById('editEstrutura').value = registro.estrutura || '';
-      document.getElementById('editVoz').value = registro.voz || '';
-      document.getElementById('editQuantidade').value = registro.quantidade || '';
-      document.getElementById('editObservacao').value = registro.observacao || '';
-      document.getElementById('editDescricao').value = registro.descricao || '';
-      document.getElementById('editTipoEquipe').value = registro.tipoEquipe || '';
+      document.getElementById('editRegistroId').value = reg.linha;
+      document.getElementById('editSgm').value = reg.sgm;
+      document.getElementById('editAlimentador').value = reg.alimentador;
+      document.getElementById('editIdgom').value = reg.idgom;
+      document.getElementById('editEstrutura').value = reg.estrutura;
+      document.getElementById('editVoz').value = `${reg.voz} - ${reg.descrição}`;
+      document.getElementById('editQuantidade').value = reg.quantidade;
+      document.getElementById('editObservacao').value = reg.observação;
+      document.getElementById('editDescricao').value = reg.descrição_da_voz;
+      document.getElementById('editTipoEquipe').value = reg.tipo_de_equipe;
       trocarAba('edicao', document.getElementById('abaEdicao'));
     }
 
@@ -632,47 +327,18 @@ Descrição: ${btn.parentElement.querySelector('textarea').value}`.trim();
         descricao: document.getElementById('editDescricao').value,
         tipoEquipe: document.getElementById('editTipoEquipe').value
       };
-
-      const senha = prompt('Digite sua senha para editar:');
-      if (!senha) return alert('Senha obrigatória.');
-
+      const senha = prompt('Senha:');
       const res = await executarNoBackend('editarRegistroComSenha', { payload, senha });
-      if (res && res.ok) {
-        alert('Registro editado com sucesso!');
-        trocarAba('consulta', document.querySelectorAll('.aba-btn')[1]);
-        consultarRegistros();
-      } else {
-        alert('Não foi possível editar. Verifique a senha e o backend.');
-      }
+      if(res?.ok) { alert('Editado!'); trocarAba('consulta'); consultarRegistros(); } else alert('Erro!');
     }
 
-    function cancelarEdicao() {
-      document.getElementById('abaEdicao').style.display = 'none';
-      trocarAba('consulta', document.querySelectorAll('.aba-btn')[1]);
+    async function excluirRegistro(reg) {
+      const senha = prompt('Senha:');
+      const res = await executarNoBackend('excluirRegistroComSenha', { payload: { id: reg.linha }, senha });
+      if(res?.ok) { alert('Excluído!'); consultarRegistros(); } else alert('Erro!');
     }
 
-    async function excluirRegistro(registro) {
-      if (!confirm('Deseja realmente excluir este registro?')) return;
-
-      const senha = prompt('Digite sua senha para excluir:');
-      if (!senha) return alert('Senha obrigatória.');
-
-      const payload = {
-        id: registro.id || registro.linha || null,
-        sgm: registro.sgm,
-        idgom: registro.idgom,
-        estrutura: registro.estrutura,
-        voz: registro.voz
-      };
-
-      const res = await executarNoBackend('excluirRegistroComSenha', { payload, senha });
-      if (res && res.ok) {
-        alert('Registro excluído com sucesso!');
-        consultarRegistros();
-      } else {
-        alert('Falha ao excluir. Ajuste o backend para aceitar os parâmetros enviados.');
-      }
-    }
+    function cancelarEdicao() { document.getElementById('abaEdicao').style.display = 'none'; trocarAba('consulta'); }
 
     window.onload = carregarDadosIniciais;
   </script>
