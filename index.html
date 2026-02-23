@@ -309,7 +309,7 @@
     <div class="abas">
       <button class="aba-btn ativa" onclick="trocarAba('cadastro', this)">Cadastro</button>
       <button class="aba-btn" onclick="trocarAba('consulta', this)">Consulta</button>
-      <button onclick="abrirAbaTimestamp()">📸 Timestamp</button>
+      <button class="aba-btn" onclick="trocarAba('aba-timestamp', this)">📸 Timestamp</button>
     </div>
 
     <!-- CADASTRO (SEU HTML 1) -->
@@ -458,11 +458,30 @@ function preencherEstrutura(selectEl) {
 }
 
     // ABAS
-    function trocarAba(idAba, botao = null) {
-      document.querySelectorAll(".aba-conteudo").forEach(sec => sec.classList.remove("ativa"));
+    async function trocarAba(idAba, botao = null) {
+      // Esconde todas as seções
+      document.getElementById('cadastro').style.display = 'none';
+      document.getElementById('consulta').style.display = 'none';
+      document.getElementById('aba-timestamp').style.display = 'none';
+      
+      // Remove classe ativa de todos os botões
       document.querySelectorAll(".aba-btn").forEach(btn => btn.classList.remove("ativa"));
-      document.getElementById(idAba)?.classList.add("ativa");
+      
+      // Mostra a aba selecionada
+      const alvo = document.getElementById(idAba);
+      if(alvo) {
+        alvo.style.display = 'block';
+        alvo.classList.add("ativa");
+      }
       if (botao) botao.classList.add("ativa");
+
+      // Lógica específica para o Timestamp
+      if (idAba === 'aba-timestamp') {
+        preencherCamposTimestamp(); // Sincroniza dados do cadastro
+        await abrirTimestampCompleto();
+      } else {
+        pararCamera(); // Desliga a câmera ao sair para economizar bateria
+      }
     }
 
     // 4. CARREGAMENTO INICIAL
@@ -993,9 +1012,56 @@ function tirarFoto() {
   imgPreview.style.borderRadius = "5px";
   document.getElementById("galeria-fotos").appendChild(imgPreview);
 }
+let streamCamera = null;
 
+async function abrirTimestampCompleto() {
+  mostrarLoader("Acessando Câmera e GPS...");
+  try {
+    obterGps();
+    const video = document.getElementById('video');
+    streamCamera = await navigator.mediaDevices.getUserMedia({ 
+      video: { facingMode: "environment" }, 
+      audio: false 
+    });
+    video.srcObject = streamCamera;
+  } catch (err) {
+    alert("Erro: Dê permissão de Câmera e GPS no navegador.");
+    console.error(err);
+  }
+  esconderLoader();
+}
+
+function pararCamera() {
+  if (streamCamera) {
+    streamCamera.getTracks().forEach(track => track.stop());
+    streamCamera = null;
+  }
+}
+
+function preencherCamposTimestamp() {
+  // Sincroniza o SGM e Vistoriador da aba Cadastro para o Timestamp
+  const sgmVal = document.getElementById("sgm").value;
+  const vistVal = document.getElementById("vistoriador").value;
+  
+  const tSgm = document.getElementById("time-sgm");
+  const tVist = document.getElementById("time-vistoriador");
+  const tIdgom = document.getElementById("time-idgom");
+
+  tSgm.innerHTML = `<option value="${sgmVal}">${sgmVal || 'SGM não definido'}</option>`;
+  tVist.innerHTML = `<option value="${vistVal}">${vistVal || 'Selecione no cadastro'}</option>`;
+  
+  // Copia os IDs disponíveis se houver algum selecionado
+  const idOriginal = document.querySelector(".box select");
+  if(idOriginal) {
+     tIdgom.innerHTML = idOriginal.innerHTML;
+     tIdgom.value = idOriginal.value;
+  } else {
+     tIdgom.innerHTML = '<option value="">Aguardando ID...</option>';
+  }
+}
 
     window.onload = carregarDadosIniciais;
   </script>
 </body>
 </html>
+
