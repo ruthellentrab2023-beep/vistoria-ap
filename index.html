@@ -1,77 +1,322 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
   <base target="_top">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cadastro e Consulta de Vistorias</title>
+
   <style>
-    /* ... TODOS OS SEUS ESTILOS ORIGINAIS ... */
+
+.btn-salvar-mini {
+  background: var(--azul);
+  color: white;
+  font-size: 12px;
+  padding: 8px;
+  margin-bottom: 5px;
+}
+.editando {
+  background: #162a45 !important;
+  border: 1px solid var(--azul) !important;
+}
+
+    /* CONTAINER PRINCIPAL */
+    .app {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    .btn-excluir-id {
+      background: rgba(255, 107, 107, 0.15);
+      color: #ff6b6b;
+      padding: 6px 12px;
+    }
+
+    .btn-excluir {
+      background: rgba(255, 107, 107, 0.15);
+      color: #ff6b6b;
+      padding: 6px 12px;
+      margin-top: 10px;
+      width: 100%;
+    }
+
     :root {
-      --azul: #00aeef;
+      --azul: #00AEEF;
       --azul-escuro: #0b132b;
       --preto: #05070f;
-      --verde: #2ecc71;
+      --verde: #2ECC71;
       --cinza-card: #0f1c2e;
-      --borda: rgba(255, 255, 255, 0.08);
+      --borda: rgba(255,255,255,0.08);
       --texto: #eaf1f8;
       --texto-sec: #aab6c4;
-      --vermelho: #ff6b6b;
       --amarelo: #f1c40f;
     }
+
     * { box-sizing: border-box; }
+
     body {
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       font-family: "Segoe UI", Roboto, Arial, sans-serif;
       background: radial-gradient(circle at top, var(--azul-escuro), var(--preto));
       color: var(--texto);
     }
-    .app { width: 100%; max-width: 1200px; margin: 0 auto; padding: 24px 16px 40px; }
-    h2 { text-align: center; color: var(--azul); margin-bottom: 20px; font-weight: 600; letter-spacing: 1px; }
-    .abas { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-    .aba-btn { border: 1px solid var(--borda); color: var(--texto); background: #0b1a2f; border-radius: 10px; padding: 10px 14px; cursor: pointer; font-weight: 600; }
-    .aba-btn.ativa { background: linear-gradient(135deg, #007cf0, #00dfd8); border: none; }
+
+    h2 {
+      text-align: center;
+      color: var(--azul);
+      margin-bottom: 18px;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 14px;
+      display: block;
+      color: var(--texto-sec);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      margin-top: 6px;
+      border-radius: 10px;
+      border: 1px solid var(--borda);
+      font-size: 14px;
+      background: #0b1a2f;
+      color: var(--texto);
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+
+    input::placeholder { color: #7f8ea3; }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--azul);
+      box-shadow: 0 0 0 2px rgba(0,174,239,0.25);
+    }
+
+    textarea { resize: vertical; min-height: 60px; }
+
+    button {
+      border-radius: 12px;
+      border: none;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s, opacity 0.1s;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+      opacity: 0.95;
+    }
+
+    /* Botões */
+    .btn-id {
+      background: linear-gradient(135deg, #007cf0, #00dfd8);
+      color: #fff;
+      margin-top: 18px;
+      width: 100%;
+    }
+
+    .btn-voz {
+      background: linear-gradient(135deg, #2ECC71, #27ae60);
+      color: #fff;
+      margin-top: 12px;
+      width: 100%;
+    }
+
+    .btn-salvar {
+      background: linear-gradient(135deg, var(--azul), var(--verde));
+      color: #fff;
+      margin-top: 24px;
+      width: 100%;
+    }
+
+    .btn-consultar {
+      background: linear-gradient(135deg, #44ad9f, #2c80ff);
+      color: #fff;
+    }
+
+    .btn-limpar {
+      background: #34495e;
+      color: #fff;
+    }
+
+    .box {
+      background: var(--cinza-card);
+      border-radius: 18px;
+      padding: 18px;
+      margin-top: 22px;
+      border: 1px solid var(--borda);
+    }
+
+    .voz {
+      background: rgba(255,255,255,0.03);
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 14px;
+      border-left: 4px solid var(--verde);
+    }
+
+    .whatsapp {
+      background: #25D366;
+      color: #fff;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .topo {
+      background: var(--cinza-card);
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid var(--borda);
+      margin-bottom: 18px;
+    }
+
+    /* ABAS (da ideia do index, adaptado pro seu estilo) */
+    .abas {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .aba-btn {
+      border: 1px solid var(--borda);
+      color: var(--texto);
+      background: #0b1a2f;
+      border-radius: 10px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .aba-btn.ativa {
+      background: linear-gradient(135deg, #007cf0, #00dfd8);
+      border: none;
+    }
     .aba-conteudo { display: none; }
     .aba-conteudo.ativa { display: block; }
-    .topo, .painel { background: var(--cinza-card); padding: 18px; border-radius: 18px; border: 1px solid var(--borda); margin-bottom: 20px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; align-items: end; }
-    label { font-size: 12px; font-weight: 600; margin-top: 10px; display: block; color: var(--texto-sec); }
-    input, select, textarea { width: 100%; padding: 10px 12px; margin-top: 6px; border-radius: 10px; border: 1px solid var(--borda); font-size: 14px; background: #0b1a2f; color: var(--texto); }
-    button { border-radius: 12px; border: none; padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; }
-    .btn-id { background: linear-gradient(135deg, #007cf0, #00dfd8); color: #fff; margin-top: 18px; width: 100%; }
-    .btn-voz { background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; margin-top: 12px; width: 100%; }
-    .btn-salvar { background: linear-gradient(135deg, var(--azul), var(--verde)); color: #fff; margin-top: 20px; width: 100%; }
-    .btn-excluir-id { background: linear-gradient(135deg, #ff6b6b, #8e0000); color: #fff; }
-    .btn-excluir { background: linear-gradient(135deg, #ff4d4d, #c0392b); color: #fff; margin-top: 10px; }
-    .btn-consultar { background: linear-gradient(135deg, #44ad9f, #2c80ff); color: #fff; }
-    .btn-limpar { background: #34495e; color: #fff; }
-    .btn-editar { background: linear-gradient(135deg, #f39c12, #d35400); color: #fff; }
-    .box { background: var(--cinza-card); border-radius: 18px; padding: 18px; margin-top: 18px; border: 1px solid var(--borda); }
-    .voz { background: rgba(255, 255, 255, 0.03); border-radius: 14px; padding: 14px; margin-top: 14px; border-left: 4px solid var(--verde); }
-    .whatsapp { background: #25d366; color: #fff; margin-top: 10px; width: 100%; }
-    .resultado-grupo { background: #0d1f35; border: 1px solid var(--borda); border-radius: 12px; margin-top: 16px; overflow: hidden; }
-    .resultado-header { padding: 12px 14px; border-bottom: 1px solid var(--borda); font-weight: 600; color: var(--azul); display: flex; justify-content: space-between; }
-    .resultado-item { padding: 12px 14px; border-bottom: 1px solid var(--borda); display: grid; grid-template-columns: 1fr auto; gap: 8px; }
-    .badge { border-radius: 99px; padding: 2px 9px; font-size: 12px; color: #111; font-weight: 700; background: var(--amarelo); margin-right: 8px; }
+
+    /* CONSULTA */
+    .painel {
+      background: var(--cinza-card);
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid var(--borda);
+      margin-bottom: 18px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      align-items: end;
+    }
+    .resultado-grupo {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--borda);
+      border-radius: 14px;
+      margin-top: 14px;
+      overflow: hidden;
+    }
+    .resultado-header {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--borda);
+      font-weight: 700;
+      color: var(--azul);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .resultado-item {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--borda);
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
     .muted { color: var(--texto-sec); font-size: 13px; }
     .vazio { padding: 14px; color: var(--texto-sec); text-align: center; }
+    .linha-dados {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px 12px;
+      margin-top: 8px;
+    }
+    .chip {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 2px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(241,196,15,0.15);
+      color: var(--amarelo);
+      border: 1px solid rgba(241,196,15,0.25);
+    }
+
+/* Posicionamento dos botões na consulta */
+.acoes-consulta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+  padding-left: 15px;
+  border-left: 1px solid var(--borda);
+}
+
+.btn-editar-mini {
+  background: rgba(46, 204, 113, 0.15);
+  color: var(--verde);
+  font-size: 12px;
+  padding: 8px;
+}
+
+.btn-excluir-mini {
+  background: rgba(255, 107, 107, 0.15);
+  color: #ff6b6b;
+  font-size: 12px;
+  padding: 8px;
+}
+
+/* Ajuste no grid para acomodar a nova coluna de botões */
+.resultado-item {
+  display: grid;
+  grid-template-columns: 1fr auto; /* Texto à esquerda, botões à direita */
+  gap: 15px;
+}
   </style>
 </head>
+
 <body>
+<div id="loader" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; flex-direction:column; justify-content:center; align-items:center; color:white; font-family:sans-serif;">
+  <div style="width:50px; height:50px; border:5px solid #f3f3f3; border-top:5px solid var(--azul); border-radius:50%; animation:spin 1s linear infinite; margin-bottom:15px;"></div>
+  <div id="loader-texto">Processando...</div>
+</div>
+
+<style>
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
   <div class="app">
     <h2>Cadastro de Vistoria</h2>
 
     <div class="abas">
       <button class="aba-btn ativa" onclick="trocarAba('cadastro', this)">Cadastro</button>
       <button class="aba-btn" onclick="trocarAba('consulta', this)">Consulta</button>
-      <button class="aba-btn" id="abaEdicao" style="display:none" onclick="trocarAba('edicao', this)">Edição</button>
+      <button onclick="abrirAbaTimestamp()">📸 Timestamp</button>
     </div>
 
-    <!-- SEÇÃO CADASTRO -->
+    <!-- CADASTRO (SEU HTML 1) -->
     <section id="cadastro" class="aba-conteudo ativa">
       <div class="topo">
         <label>SGM</label>
-        <input type="text" id="sgm" list="listaSGM" oninput="filtrarSGM()" onblur="buscarSGM()">
+        <input type="text" id="sgm" list="listaSGM" oninput="filtrarSGM()" onchange="buscarSGM()">
         <datalist id="listaSGM"></datalist>
 
         <label>Vistoriador</label>
@@ -86,259 +331,669 @@
       <button class="btn-salvar" onclick="salvar()">💾 Salvar</button>
     </section>
 
-    <!-- SEÇÃO CONSULTA -->
+    <!-- CONSULTA (A PARTE QUE VOCÊ GOSTOU DO index-COPIA) -->
     <section id="consulta" class="aba-conteudo">
       <div class="painel">
         <div class="grid-3">
-          <div><label>Pesquisar SGM</label><input id="qSgm" type="text" placeholder="Ex.: SGM-123"></div>
-          <div><label>Pesquisar IDGOM</label><input id="qId" type="text" placeholder="Ex.: 456789"></div>
-          <div><label>Pesquisar Estrutura</label><input id="qEstrutura" type="text" placeholder="Ex.: P-10"></div>
+          <div>
+            <label>Pesquisar SGM</label>
+            <input id="qSgm" type="text" placeholder="Ex.: SGM-123">
+          </div>
+          <div>
+            <label>Pesquisar IDGOM</label>
+            <input id="qId" type="text" placeholder="Ex.: 456789">
+          </div>
+          <div>
+            <label>Pesquisar Estrutura</label>
+            <input id="qEstrutura" type="text" placeholder="Ex.: P-10">
+          </div>
         </div>
-        <div class="acoes" style="margin-top:12px; display: flex; gap: 8px;">
+
+        <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
           <button class="btn-consultar" onclick="consultarRegistros()">🔎 Consultar</button>
           <button class="btn-limpar" onclick="limparConsulta()">Limpar</button>
         </div>
-      </div>
-      <div id="resultadoConsulta" class="painel">
-        <div class="vazio">Faça uma consulta para visualizar os registros agrupados.</div>
-      </div>
-    </section>
 
-    <!-- SEÇÃO EDIÇÃO -->
-    <section id="edicao" class="aba-conteudo">
-      <div class="painel">
-        <h3 style="margin-top:0">Edição de Registro</h3>
-        <input type="hidden" id="editRegistroId">
-        <label>SGM</label><input id="editSgm" type="text">
-        <div class="grid-3">
-          <div><label>Alimentador</label><input id="editAlimentador" type="text"></div>
-          <div><label>IDGOM</label><input id="editIdgom" type="text"></div>
-          <div><label>Estrutura</label><input id="editEstrutura" type="text"></div>
-        </div>
-        <div class="grid-3">
-          <div><label>Voz</label><input id="editVoz" type="text"></div>
-          <div><label>Quantidade</label><input id="editQuantidade" type="number"></div>
-          <div><label>Tipo de Equipe</label><input id="editTipoEquipe" type="text"></div>
-        </div>
-        <label>Observação</label><input id="editObservacao" type="text">
-        <label>Descrição</label><textarea id="editDescricao"></textarea>
-        <div class="acoes" style="margin-top:14px; display: flex; gap: 8px;">
-          <button class="btn-salvar" onclick="salvarEdicao()">💾 Salvar edição</button>
-          <button class="btn-limpar" onclick="cancelarEdicao()">Cancelar</button>
+        <div class="muted" style="margin-top:10px;">
+          Dica: você pode pesquisar por parte do texto (ex.: só "123" do IDGOM).
         </div>
       </div>
+
+      <div id="resultadoConsulta" class="painel">
+        <div class="vazio">Faça uma consulta para visualizar os registros.</div>
+      </div>
     </section>
+    <!-- TIMESTEMP -->
+    <div id="aba-timestamp" style="display:none;">
+  <div class="card">
+    <h2 style="color: var(--azul); margin-bottom: 20px;">📸 Registro Fotográfico (Timestamp)</h2>
+    
+    <div class="grid">
+      <div class="campo">
+        <label>SGM</label>
+        <select id="time-sgm" onchange="atualizarDadosSgmTime()"></select>
+      </div>
+      <div class="campo">
+        <label>IDGOM</label>
+        <select id="time-idgom"></select>
+      </div>
+      <div class="campo">
+        <label>Vistoriador</label>
+        <select id="time-vistoriador"></select>
+      </div>
+    </div>
+
+    <div id="info-gps" style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; font-size: 12px; margin-bottom: 15px;">
+      <p>📍 <strong>Localização:</strong> <span id="time-endereco">Obtendo...</span></p>
+      <p>🌐 <strong>Coordenadas:</strong> <span id="time-coords">...</span></p>
+      <p>⏰ <strong>Data/Hora:</strong> <span id="time-datahora">--/--/-- --:--</span></p>
+    </div>
+
+    <div style="position: relative; width: 100%; max-width: 500px; margin: 0 auto; overflow: hidden; border-radius: 12px; border: 2px solid var(--azul);">
+      <video id="video" width="100%" autoplay playsinline></video>
+      <canvas id="canvas" style="display:none;"></canvas>
+      
+      <div id="watermark-preview" style="position: absolute; bottom: 10px; left: 10px; color: white; text-shadow: 1px 1px 2px black; font-size: 10px; pointer-events: none;">
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 10px; margin-top: 15px; justify-content: center;">
+      <button class="btn-salvar" onclick="tirarFoto()" style="flex:1;">📸 Tirar Foto</button>
+    </div>
+    
+    <div id="galeria-fotos" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px;"></div>
+  </div>
+</div>
   </div>
 
   <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyiJ6mqoMn8XLOj8XSUiXddhhdJm5hWBAFwYV-FECslzP2ryu1s6XzaIHcnjHmQSu7HfQ/exec";
 
-    let sgms = [], alimentadores = [], idsSGM = [], vozes = [], observacoes = [], tiposEquipe = [];
+let idInfo = {};
 
-    // --- FUNÇÃO DE CONEXÃO JSONP ---
-    function executarNoBackend(funcao, parametros = null) {
-      return new Promise((resolve) => {
-        const cb = `cb_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
-        window[cb] = (data) => {
-          resolve(data);
-          delete window[cb];
-          document.body.removeChild(script);
-        };
-        const script = document.createElement('script');
-        const sep = WEB_APP_URL.includes('?') ? '&' : '?';
-        const dataStr = encodeURIComponent(JSON.stringify(parametros));
-        script.src = `${WEB_APP_URL}${sep}action=${funcao}&data=${dataStr}&callback=${cb}`;
-        document.body.appendChild(script);
-      });
-    }
+    // 1. CONFIGURAÇÃO DE CONEXÃO (MESMA DO SEU HTML 1)
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzvZCS8Ba_nt0hzB7jXXNCqQgHVsqrH9hbgFvmZOqBp1M5LunmGYzAmltzqB3_z2SBJqA/exec";
 
+    // 2. VARIÁVEIS GLOBAIS
+    let sgms = [];
+    let alimentadores = [];
+    let idsSGM = [];
+    let vozes = [];
+    let observacoes = [];
+    let tiposEquipe = [];
+
+
+function preencherEstrutura(selectEl) {
+  const box = selectEl.closest(".box");
+  const idgom = selectEl.value;
+
+  if (!idInfo[idgom]) return;
+
+  const estruturaInput = box.querySelectorAll("input")[1];
+  estruturaInput.value = idInfo[idgom].estrutura || "";
+}
+
+    // 3. BACKEND via FETCH (JSON normal)
+    async function executarNoBackend(funcao, parametros = null) {
+  // Liga o loader automaticamente
+  mostrarLoader("Comunicando com o servidor...");
+  
+  const url =
+    `${WEB_APP_URL}?action=${funcao}` +
+    (parametros ? "&data=" + encodeURIComponent(JSON.stringify(parametros)) : "");
+    
+  try {
+    const response = await fetch(url);
+    const texto = await response.text();
+    const json = JSON.parse(texto);
+    
+    // Desliga o loader ao terminar com sucesso
+    esconderLoader();
+    return json;
+  } catch (e) {
+    // Desliga o loader em caso de erro
+    esconderLoader();
+    console.error("Erro na comunicação:", e);
+    return null;
+  }
+}
+
+    // ABAS
     function trocarAba(idAba, botao = null) {
-      document.querySelectorAll('.aba-conteudo').forEach(sec => sec.classList.remove('ativa'));
-      document.querySelectorAll('.aba-btn').forEach(btn => btn.classList.remove('ativa'));
-      document.getElementById(idAba)?.classList.add('ativa');
-      if (botao) botao.classList.add('ativa');
+      document.querySelectorAll(".aba-conteudo").forEach(sec => sec.classList.remove("ativa"));
+      document.querySelectorAll(".aba-btn").forEach(btn => btn.classList.remove("ativa"));
+      document.getElementById(idAba)?.classList.add("ativa");
+      if (botao) botao.classList.add("ativa");
     }
 
+    // 4. CARREGAMENTO INICIAL
+    // 4. CARREGAMENTO INICIAL (Versão Robusta)
     async function carregarDadosIniciais() {
-      sgms = await executarNoBackend('buscarListaSGM') || [];
-      atualizarListaSGM(sgms);
+      console.log("Iniciando carregamento...");
       
-      const vists = await executarNoBackend('buscarVistoriadores') || [];
-      const sel = document.getElementById('vistoriador');
-      vists.forEach(v => sel.innerHTML += `<option value="${v}">${v}</option>`);
+      try {
+        // Dispara todas as requisições ao mesmo tempo
+        const [listaSGM, listaVist, listaVozes, listaObs, listaTipos] = await Promise.all([
+          executarNoBackend("buscarListaSGM"),
+          executarNoBackend("buscarVistoriadores"),
+          executarNoBackend("buscarVozes"),
+          executarNoBackend("buscarObservacoes"),
+          executarNoBackend("buscarTiposEquipe")
+        ]);
 
-      vozes = await executarNoBackend('buscarVozes') || [];
-      observacoes = await executarNoBackend('buscarObservacoes') || [];
-      tiposEquipe = await executarNoBackend('buscarTiposEquipe') || [];
-      adicionarID(); 
-    }
+        // Processa SGM
+        if (Array.isArray(listaSGM)) {
+          sgms = listaSGM;
+          atualizarListaSGM(sgms);
+        }
 
-    function filtrarSGM() {
-      const val = document.getElementById('sgm').value.toLowerCase();
-      atualizarListaSGM(sgms.filter(s => s.toLowerCase().includes(val)));
-    }
+        // Processa Vistoriadores
+        if (Array.isArray(listaVist)) {
+          const select = document.getElementById("vistoriador");
+          select.innerHTML = '<option value="">Selecione</option>';
+          listaVist.forEach(v => {
+            const opt = document.createElement("option");
+            opt.value = v;
+            opt.textContent = v;
+            select.appendChild(opt);
+          });
+        }
 
-    function atualizarListaSGM(lista) {
-      const dl = document.getElementById('listaSGM');
-      dl.innerHTML = lista.map(s => `<option value="${s}">`).join('');
-    }
+        // Processa Listas Fixas (Se vier null, usa array vazio [])
+        vozes = Array.isArray(listaVozes) ? listaVozes : [];
+        observacoes = Array.isArray(listaObs) ? listaObs : [];
+        tiposEquipe = Array.isArray(listaTipos) ? listaTipos : [];
 
-    async function buscarSGM() {
-      const sgm = document.getElementById('sgm').value;
-      if (!sgm) return;
-      const d = await executarNoBackend('buscarDadosSGM', { sgm });
-      if (d) {
-        alimentadores = d.alimentadores || [];
-        idsSGM = d.ids || [];
+        console.log("Dados carregados. Vozes encontradas:", vozes.length);
+
+      } catch (err) {
+        console.error("Erro crítico ao carregar dados:", err);
+        alert("Erro ao conectar com a planilha. Verifique sua internet ou contate o administrador.");
       }
     }
 
+    // 5. SGM AUTOCOMPLETE
+    function filtrarSGM() {
+      const valor = document.getElementById("sgm").value.toLowerCase();
+      const filtrados = sgms.filter(s => s.toLowerCase().includes(valor));
+      atualizarListaSGM(filtrados);
+    }
+
+    function atualizarListaSGM(lista) {
+      const datalist = document.getElementById("listaSGM");
+      datalist.innerHTML = "";
+      lista.forEach(sgm => {
+        const opt = document.createElement("option");
+        opt.value = sgm;
+        datalist.appendChild(opt);
+      });
+    }
+
+    async function buscarSGM() {
+  const sgm = document.getElementById("sgm").value;
+  if (!sgm) return;
+
+  const d = await executarNoBackend("buscarDadosSGM", { sgm });
+  if (!d) return;
+
+  alimentadores = d.alimentadores || [];
+  idsSGM = d.ids || [];
+  idInfo = d.idInfo || {}; // ← ESSA LINHA
+}
+
+    // 6. CADASTRO (MESMA IDEIA DO HTML 1)
     function adicionarID() {
-      const div = document.createElement('div');
-      div.className = 'box';
-      div.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
-          <strong style="color:var(--azul)">IDGOM</strong>
-          <button class="btn-excluir-id" onclick="this.closest('.box').remove()">🗑️ Excluir</button>
-        </div>
-        <label>Alimentador</label><input list="listaAlm" class="f-alm">
-        <datalist id="listaAlm">${alimentadores.map(a => `<option value="${a}">`).join('')}</datalist>
-        <label>IDGOM</label><input list="listaId" class="f-id">
-        <datalist id="listaId">${idsSGM.map(i => `<option value="${i}">`).join('')}</datalist>
-        <label>Estrutura</label><input type="text" class="f-est">
-        <div class="vozes-container"></div>
-        <button class="btn-voz" onclick="adicionarVoz(this)">➕ Adicionar Voz</button>
-      `;
-      document.getElementById('ids').appendChild(div);
-    }
+  // ✅ trava se o SGM ainda não carregou os IDs
+  if (!idsSGM || idsSGM.length === 0) {
+    alert("Digite o SGM e depois clique fora do campo (ou aperte TAB/ENTER) para carregar os IDGOM antes de adicionar.");
+    return;
+  }
 
-    function adicionarVoz(btn) {
-      const div = document.createElement('div');
-      div.className = 'voz';
-      div.innerHTML = `
-        <label>Voz</label><select class="v-voz">${vozes.map(v => `<option value="${v}">${v}</option>`).join('')}</select>
-        <label>Quantidade</label><input type="number" class="v-qtd">
-        <label>Observação</label><select class="v-obs" onchange="verificaWhats(this)">${observacoes.map(o => `<option value="${o}">${o}</option>`).join('')}</select>
-        <label>Descrição</label><textarea class="v-desc"></textarea>
-        <label>Tipo de Equipe</label><select class="v-tipo">${tiposEquipe.map(t => `<option value="${t}">${t}</option>`).join('')}</select>
+  const div = document.createElement("div");
+  div.className = "box";
+  div.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <strong style="color:#00AEEF">IDGOM</strong>
+      <button class="btn-excluir-id" onclick="excluirIDGOM(this)">🗑️ Excluir IDGOM</button>
+    </div>
+
+    <label>Alimentador</label>
+    <input list="listaAlimentador">
+    <datalist id="listaAlimentador">
+      ${alimentadores.map(a => `<option value="${a}">`).join("")}
+    </datalist>
+
+    <label>IDGOM</label>
+    <select onchange="preencherEstrutura(this)">
+      <option value="">Selecione</option>
+      ${idsSGM.map(i => `<option value="${i}">${i}</option>`).join("")}
+    </select>
+
+    <label>Estrutura</label>
+    <input type="text" readonly>
+
+    <div class="vozes"></div>
+    <button class="btn-voz" onclick="adicionarVoz(this)">➕ Adicionar Voz</button>
+  `;
+  document.getElementById("ids").appendChild(div);
+}
+
+    function adicionarVoz(botao) {
+      const divVoz = document.createElement("div");
+      divVoz.className = "voz";
+      divVoz.innerHTML = `
+        <label>Voz</label>
+        <select>
+          ${vozes.map(v => `<option value="${v}">${v}</option>`).join("")}
+        </select>
+        <label>Quantidade</label>
+        <input type="number">
+        <label>Observação</label>
+        <select onchange="verificaWhats(this)">
+          ${observacoes.map(o => `<option value="${o}">${o}</option>`).join("")}
+        </select>
+        <label>Descrição</label>
+        <textarea></textarea>
+        <label>Tipo de Equipe</label>
+        <select>
+          ${tiposEquipe.map(t => `<option value="${t}">${t}</option>`).join("")}
+        </select>
         <button class="whatsapp" style="display:none" onclick="enviarWhats(this)">📲 Enviar WhatsApp</button>
-        <button class="btn-excluir" onclick="this.closest('.voz').remove()">🗑️ Excluir Voz</button>
+        <button class="btn-excluir" onclick="excluirVoz(this)">🗑️ Excluir Voz</button>
       `;
-      btn.previousElementSibling.appendChild(div);
+      botao.previousElementSibling.appendChild(divVoz);
     }
 
-    function verificaWhats(sel) {
-      const btn = sel.closest('.voz').querySelector('.whatsapp');
-      btn.style.display = sel.value.toLowerCase().includes('poda extra') ? 'block' : 'none';
+    function normalizarTexto(valor) {
+      return String(valor || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .toLowerCase();
+    }
+
+    function verificaWhats(select) {
+      const btn = select.closest(".voz")?.querySelector(".whatsapp");
+      if (!btn) return;
+      const observacao = normalizarTexto(select.value);
+      btn.style.display = observacao === "poda extra" ? "block" : "none";
     }
 
     function enviarWhats(btn) {
-      const box = btn.closest('.box');
-      const texto = `SGM: ${document.getElementById('sgm').value}\nID: ${box.querySelector('.f-id').value}\nEst: ${box.querySelector('.f-est').value}\nDesc: ${btn.closest('.voz').querySelector('.v-desc').value}`;
+      const box = btn.closest(".box");
+      const texto = `Projeto (SGM): ${document.getElementById("sgm").value}
+      Alimentador: ${box.querySelectorAll("input")[0].value}
+      Estrutura: ${box.querySelectorAll("input")[1].value}
+      IDGOM: ${box.querySelector("select").value}
+      Descrição: ${btn.parentElement.querySelector("textarea").value}`.trim();
       window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`);
     }
 
     async function salvar() {
       const payload = {
-        sgm: document.getElementById('sgm').value,
-        vistoriador: document.getElementById('vistoriador').value,
+        sgm: document.getElementById("sgm").value,
+        vistoriador: document.getElementById("vistoriador").value,
         registros: []
       };
-      if(!payload.sgm || !payload.vistoriador) return alert("SGM e Vistoriador obrigatórios");
 
-      document.querySelectorAll('.box').forEach(box => {
-        const alm = box.querySelector('.f-alm').value;
-        const idgom = box.querySelector('.f-id').value;
-        const est = box.querySelector('.f-est').value;
-        box.querySelectorAll('.voz').forEach(v => {
+      if (!payload.sgm || !payload.vistoriador) {
+        return alert("SGM e Vistoriador são obrigatórios.");
+      }
+
+      document.querySelectorAll(".box").forEach(box => {
+        const inputs = box.querySelectorAll("input");
+        const alimentador = inputs[0].value;
+        const idgom = box.querySelector("select").value;
+        const estrutura = inputs[1].value;
+
+        box.querySelectorAll(".voz").forEach(v => {
+          const selects = v.querySelectorAll("select");
           payload.registros.push({
-            alimentador: alm, idgom: idgom, estrutura: est,
-            voz: v.querySelector('.v-voz').value,
-            quantidade: v.querySelector('.v-qtd').value,
-            observacao: v.querySelector('.v-obs').value,
-            descricao: v.querySelector('.v-desc').value,
-            tipoEquipe: v.querySelector('.v-tipo').value
+            alimentador, idgom, estrutura,
+            voz: selects[0].value,
+            quantidade: v.querySelector("input").value,
+            observacao: selects[1].value,
+            descricao: v.querySelector("textarea").value,
+            tipoEquipe: selects[2].value
           });
         });
       });
 
-      const senha = prompt('Digite sua senha:');
-      if (!senha) return;
-      const res = await executarNoBackend('salvarBaseComSenha', { payload, senha });
-      if (res?.ok) { alert('Salvo!'); location.reload(); } else alert('Erro!');
+      const senha = prompt("Digite sua senha:");
+      if (!senha) return alert("Senha obrigatória.");
+
+      const res = await executarNoBackend("salvarBaseComSenha", { payload, senha });
+      if (res && res.ok) {
+        alert("Dados salvos com sucesso!");
+        location.reload();
+      } else {
+        alert("Erro ou senha incorreta.");
+      }
     }
 
+    function excluirVoz(botao) {
+      if (confirm("Deseja excluir esta voz?")) botao.closest(".voz").remove();
+    }
+
+    function excluirIDGOM(botao) {
+      if (confirm("Deseja excluir este IDGOM?")) botao.closest(".box").remove();
+    }
+
+    // -------------------------
+    // CONSULTA (aba que você queria)
+    // -------------------------
     async function consultarRegistros() {
       const filtros = {
-        sgm: document.getElementById('qSgm').value,
-        idgom: document.getElementById('qId').value,
-        estrutura: document.getElementById('qEstrutura').value
+        sgm: document.getElementById("qSgm").value,
+        idgom: document.getElementById("qId").value,
+        estrutura: document.getElementById("qEstrutura").value
       };
-      const res = await executarNoBackend('consultarRegistros', filtros);
-      renderizarConsultaAgrupada(res || []);
+      const res = await executarNoBackend("consultarRegistros", filtros);
+      renderizarConsulta(res || []);
     }
 
-    function renderizarConsultaAgrupada(lista) {
-      const resBox = document.getElementById('resultadoConsulta');
-      resBox.innerHTML = lista.length ? '' : '<div class="vazio">Nenhum registro.</div>';
-      
-      lista.forEach(reg => {
-        const grupo = document.createElement('div');
-        grupo.className = 'resultado-grupo';
-        grupo.innerHTML = `
-          <div class="resultado-header">SGM: ${reg.sgm} | ID: ${reg.idgom} | Est: ${reg.estrutura}</div>
-          <div class="resultado-item">
-            <div><strong>Voz:</strong> ${reg.voz} | <strong>Qtd:</strong> ${reg.quantidade} | <strong>Equipe:</strong> ${reg.tipo_de_equipe}</div>
-            <div class="acoes">
-              <button class="btn-editar" onclick='abrirEdicao(${JSON.stringify(reg)})'>✏️</button>
-              <button class="btn-excluir" onclick='excluirRegistro(${JSON.stringify(reg)})'>🗑️</button>
-            </div>
+    function limparConsulta() {
+      document.getElementById("qSgm").value = "";
+      document.getElementById("qId").value = "";
+      document.getElementById("qEstrutura").value = "";
+      document.getElementById("resultadoConsulta").innerHTML =
+        '<div class="vazio">Faça uma consulta para visualizar os registros.</div>';
+    }
+
+    // Helpers para aguentar nomes de colunas diferentes no Sheet
+    function pick(obj, keys, fallback = "") {
+      for (const k of keys) {
+        if (obj && obj[k] !== undefined && obj[k] !== null && String(obj[k]).trim() !== "") return obj[k];
+      }
+      return fallback;
+    }
+
+function renderizarConsulta(lista) {
+  const box = document.getElementById("resultadoConsulta");
+  if (!lista.length) {
+    box.innerHTML = '<div class="vazio">Nenhum registro encontrado.</div>';
+    return;
+  }
+  box.innerHTML = "";
+
+  lista.forEach(reg => {
+    // --- ATRIBUIÇÃO DAS VARIÁVEIS (A correção que você pediu) ---
+    const linha       = reg.linha;
+    const sgm         = reg.sgm || "-";
+    const idgom       = reg.idgom || "-";
+    const estrutura   = reg.estrutura || "-";
+    const alimentador = reg.alimentador || "-";
+    const voz         = reg.voz || "-";
+    const qtd         = reg.quantidade || "-";
+    const obs         = reg.observacao || "-";
+    const desc        = reg.descricao || "-";
+    const tipoEq      = reg.tipo_equipe || "-";
+    const vist        = reg.vistoriador || "-";
+    const data        = reg.data ? new Date(reg.data).toLocaleString() : "";
+
+    const grupo = document.createElement("div");
+    grupo.className = "resultado-grupo";
+    grupo.id = `grupo-${linha}`;
+
+    // --- MONTAGEM DO HTML USANDO AS VARIÁVEIS ---
+    grupo.innerHTML = `
+      <div class="resultado-header">
+        <div>SGM: <span id="val-sgm-${linha}">${sgm}</span> 
+             <span class="chip">IDGOM: <span id="val-idgom-${linha}">${idgom}</span></span></div>
+        <div class="muted">${data}</div>
+      </div>
+      <div class="resultado-item">
+        <div id="dados-${linha}">
+          <div class="linha-dados">
+            <div><strong>Estrutura:</strong> <span id="val-est-${linha}">${estrutura}</span></div>
+            <div><strong>Alimentador:</strong> <span id="val-alm-${linha}">${alimentador}</span></div>
+            <div><strong>Voz:</strong> <span id="val-voz-${linha}">${voz}</span></div>
+            <div><strong>Qtd:</strong> <span id="val-qtd-${linha}">${qtd}</span></div>
+            <div><strong>Tipo Equipe:</strong> <span id="val-teq-${linha}">${tipoEq}</span></div>
+            <div><strong>Vistoriador:</strong> <span id="val-vist-${linha}">${vist}</span></div>
           </div>
-        `;
-        resBox.appendChild(grupo);
-      });
+          <div class="muted"><strong>Obs:</strong> <span id="val-obs-${linha}">${obs}</span></div>
+          <div class="muted"><strong>Desc:</strong> <span id="val-desc-${linha}">${desc}</span></div>
+        </div>
+        <div class="acoes-consulta" id="acoes-${linha}">
+          <button class="btn-editar-mini" onclick="habilitarEdicao(${linha})">✏️ Editar</button>
+          <button class="btn-excluir-mini" onclick="excluirDireto(${linha})">🗑️ Excluir</button>
+        </div>
+      </div>
+    `;
+    box.appendChild(grupo);
+  });
+}
+
+async function editarDireto(linha) {
+  const novoVistoriador = document.getElementById("vistoriador").value;
+  
+  if (!novoVistoriador) {
+    alert("Por favor, selecione um Vistoriador na aba 'Cadastro' antes de atualizar.");
+    return;
+  }
+
+  if (confirm("Deseja atualizar este registro com o novo Vistoriador e Data Atual?")) {
+    // Reutiliza a rota existente 'editarRegistro', mas com a lógica nova
+    const res = await executarNoBackend("editarRegistro", { 
+      linha: linha, 
+      vistoriador: novoVistoriador 
+    });
+    
+    if (res && res.ok) {
+      alert("Registro atualizado!");
+      consultarRegistros(); // Recarrega a lista
+    }
+  }
+}
+
+async function excluirDireto(linha) {
+  if (confirm("Tem certeza que deseja excluir permanentemente este registro?")) {
+    // Reutiliza a rota existente 'excluirRegistro'
+    const res = await executarNoBackend("excluirRegistro", { linha: linha });
+    if (res && res.ok) {
+      alert("Registro excluído!");
+      consultarRegistros(); // Recarrega a lista
+    }
+  }
+}
+// Funções de Ação Direta na Consulta
+    async function editarDireto(linha) {
+      // Tenta pegar o vistoriador selecionado na aba Cadastro
+      const novoVistoriador = document.getElementById("vistoriador").value;
+      
+      if (!novoVistoriador) {
+        alert("Por favor, selecione um Vistoriador no topo da tela (aba Cadastro) antes de clicar em Atualizar.");
+        return;
+      }
+
+      if (confirm("Deseja atualizar este registro? A data/hora e o vistoriador serão atualizados para os valores atuais.")) {
+        // Envia para o backend usando a rota que já existe no seu Code.gs
+        const res = await executarNoBackend("editarRegistro", { 
+          payload: { 
+            id: linha, 
+            vistoriador: novoVistoriador 
+          } 
+        });
+        
+        if (res && res.ok) {
+          alert("Registro atualizado com sucesso!");
+          consultarRegistros(); // Atualiza a lista na tela
+        } else {
+          alert("Erro ao atualizar: " + (res.error || "Erro desconhecido"));
+        }
+      }
     }
 
-    function abrirEdicao(reg) {
-      document.getElementById('abaEdicao').style.display = 'inline-block';
-      document.getElementById('editRegistroId').value = reg.linha;
-      document.getElementById('editSgm').value = reg.sgm;
-      document.getElementById('editAlimentador').value = reg.alimentador;
-      document.getElementById('editIdgom').value = reg.idgom;
-      document.getElementById('editEstrutura').value = reg.estrutura;
-      document.getElementById('editVoz').value = `${reg.voz} - ${reg.descrição}`;
-      document.getElementById('editQuantidade').value = reg.quantidade;
-      document.getElementById('editObservacao').value = reg.observação;
-      document.getElementById('editDescricao').value = reg.descrição_da_voz;
-      document.getElementById('editTipoEquipe').value = reg.tipo_de_equipe;
-      trocarAba('edicao', document.getElementById('abaEdicao'));
+    async function excluirDireto(linha) {
+      if (confirm("Tem certeza que deseja excluir permanentemente este registro da planilha?")) {
+        // Envia para o backend usando a rota que já existe no seu Code.gs
+        const res = await executarNoBackend("excluirRegistro", { id: linha });
+        
+        if (res && res.ok) {
+          alert("Registro excluído!");
+          consultarRegistros(); // Atualiza a lista na tela
+        } else {
+          alert("Erro ao excluir: " + (res.error || "Erro desconhecido"));
+        }
+      }
     }
 
-    async function salvarEdicao() {
-      const payload = {
-        id: document.getElementById('editRegistroId').value,
-        sgm: document.getElementById('editSgm').value,
-        alimentador: document.getElementById('editAlimentador').value,
-        idgom: document.getElementById('editIdgom').value,
-        estrutura: document.getElementById('editEstrutura').value,
-        voz: document.getElementById('editVoz').value,
-        quantidade: document.getElementById('editQuantidade').value,
-        observacao: document.getElementById('editObservacao').value,
-        descricao: document.getElementById('editDescricao').value,
-        tipoEquipe: document.getElementById('editTipoEquipe').value
-      };
-      const senha = prompt('Senha:');
-      const res = await executarNoBackend('editarRegistroComSenha', { payload, senha });
-      if(res?.ok) { alert('Editado!'); trocarAba('consulta'); consultarRegistros(); } else alert('Erro!');
-    }
+function habilitarEdicao(linha) {
+  const campos = [
+    {id: `val-est-${linha}`},
+    {id: `val-alm-${linha}`},
+    {id: `val-voz-${linha}`},
+    {id: `val-qtd-${linha}`},
+    {id: `val-obs-${linha}`},
+    {id: `val-desc-${linha}`},
+    {id: `val-vist-${linha}`} // <-- ADICIONE ESTA LINHA
+  ];
 
-    async function excluirRegistro(reg) {
-      const senha = prompt('Senha:');
-      const res = await executarNoBackend('excluirRegistroComSenha', { payload: { id: reg.linha }, senha });
-      if(res?.ok) { alert('Excluído!'); consultarRegistros(); } else alert('Erro!');
-    }
+  campos.forEach(c => {
+    const el = document.getElementById(c.id);
+    const valorAtual = el.innerText;
+    // Transforma o texto em uma caixa de edição azulada
+    el.innerHTML = `<input type="text" class="editando" id="input-${c.id}" value="${valorAtual}" style="padding:2px 5px; margin:0; height:auto; width:100%;">`;
+  });
 
-    function cancelarEdicao() { document.getElementById('abaEdicao').style.display = 'none'; trocarAba('consulta'); }
+  // Troca os botões para Salvar/Cancelar
+  const divAcoes = document.getElementById(`acoes-${linha}`);
+  divAcoes.innerHTML = `
+    <button class="btn-salvar-mini" onclick="salvarEdicao(${linha})">💾 Salvar</button>
+    <button class="btn-limpar" style="padding:5px; font-size:11px" onclick="consultarRegistros()">❌ Sair</button>
+  `;
+}
+
+    async function salvarEdicao(linha) {
+  // Agora pegamos o valor do INPUT que criamos na linha, não mais o do topo da página
+  const vistDigitado = document.getElementById(`input-val-vist-${linha}`).value;
+
+  if (!vistDigitado) {
+    alert("O campo Vistoriador não pode ficar vazio.");
+    return;
+  }
+
+  const dados = {
+    linha: linha,
+    vistoriador: vistDigitado, // <-- Usa o nome que você editou
+    sgm: document.getElementById(`val-sgm-${linha}`).innerText,
+    idgom: document.getElementById(`val-idgom-${linha}`).innerText,
+    estrutura: document.getElementById(`input-val-est-${linha}`).value,
+    alimentador: document.getElementById(`input-val-alm-${linha}`).value,
+    voz: document.getElementById(`input-val-voz-${linha}`).value,
+    quantidade: document.getElementById(`input-val-qtd-${linha}`).value,
+    observacao: document.getElementById(`input-val-obs-${linha}`).value,
+    descricao: document.getElementById(`input-val-desc-${linha}`).value,
+    tipoEquipe: document.getElementById(`val-teq-${linha}`).innerText 
+  };
+
+  const res = await executarNoBackend("editarRegistro", { payload: dados });
+  if (res && res.ok) {
+    alert("Registro atualizado!");
+    consultarRegistros();
+  } else {
+    alert("Erro ao salvar alterações.");
+  }
+}
+
+function mostrarLoader(texto = "Processando...") {
+  document.getElementById("loader-texto").innerText = texto;
+  document.getElementById("loader").style.display = "flex";
+}
+
+function esconderLoader() {
+  document.getElementById("loader").style.display = "none";
+}
+
+let localizacaoAtual = { lat: "", lng: "", endereco: "" };
+
+// Inicia o GPS e a Câmera quando abrir a aba
+async function abrirAbaTimestamp() {
+  mostrarLoader("Iniciando Câmera e GPS...");
+  document.getElementById('aba-timestamp').style.display = 'block';
+  document.getElementById('aba-cadastro').style.display = 'none';
+  document.getElementById('aba-consulta').style.display = 'none';
+  
+  iniciarCamera();
+  obterGps();
+  setInterval(atualizarRelogio, 1000);
+  esconderLoader();
+}
+
+function atualizarRelogio() {
+  const agora = new Date().toLocaleString();
+  document.getElementById("time-datahora").innerText = agora;
+}
+
+// Obtém Localização Real
+function obterGps() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      document.getElementById("time-coords").innerText = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      localizacaoAtual.lat = lat;
+      localizacaoAtual.lng = lng;
+      
+      // Busca endereço simplificado (Reverso Geocoding via API gratuita se desejar ou apenas as coordenadas)
+      document.getElementById("time-endereco").innerText = "Coordenadas obtidas com sucesso";
+    });
+  }
+}
+
+// Configura Câmera
+async function iniciarCamera() {
+  const video = document.getElementById('video');
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+    video.srcObject = stream;
+  } catch (err) {
+    alert("Erro ao acessar câmera: " + err);
+  }
+}
+
+function tirarFoto() {
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  
+  // Define tamanho da foto igual ao vídeo
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  
+  // Desenha a foto
+  ctx.drawImage(video, 0, 0);
+  
+  // Adiciona Marca d'água (Timestamp)
+  ctx.fillStyle = "white";
+  ctx.font = "20px Arial";
+  ctx.shadowColor = "black";
+  ctx.shadowBlur = 4;
+  
+  const sgm = document.getElementById("time-sgm").value;
+  const id = document.getElementById("time-idgom").value;
+  const vist = document.getElementById("time-vistoriador").value;
+  const data = new Date().toLocaleString();
+  const coords = document.getElementById("time-coords").innerText;
+
+  ctx.fillText(`SGM: ${sgm} | ID: ${id}`, 20, canvas.height - 80);
+  ctx.fillText(`Vist: ${vist} | ${data}`, 20, canvas.height - 50);
+  ctx.fillText(`Loc: ${coords}`, 20, canvas.height - 20);
+
+  // Criar elemento de download
+  const link = document.createElement('a');
+  link.download = `Vistoria_${sgm}_${Date.now()}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click(); // Salva no dispositivo automaticamente
+
+  // Adiciona na galeria visual do app
+  const imgPreview = document.createElement('img');
+  imgPreview.src = link.href;
+  imgPreview.style.width = "80px";
+  imgPreview.style.borderRadius = "5px";
+  document.getElementById("galeria-fotos").appendChild(imgPreview);
+}
+
 
     window.onload = carregarDadosIniciais;
   </script>
