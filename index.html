@@ -406,662 +406,359 @@
 </div>
   </div>
 
-  <script>
-
-let idInfo = {};
-
-    // 1. CONFIGURAÇÃO DE CONEXÃO (MESMA DO SEU HTML 1)
+<script>
+    // 1. CONFIGURAÇÃO E VARIÁVEIS GLOBAIS
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzvZCS8Ba_nt0hzB7jXXNCqQgHVsqrH9hbgFvmZOqBp1M5LunmGYzAmltzqB3_z2SBJqA/exec";
-
-    // 2. VARIÁVEIS GLOBAIS
+    
+    let idInfo = {};
     let sgms = [];
     let alimentadores = [];
     let idsSGM = [];
     let vozes = [];
     let observacoes = [];
     let tiposEquipe = [];
+    let streamCamera = null;
+    let localizacaoAtual = { lat: "", lng: "", endereco: "" };
 
-
-function preencherEstrutura(selectEl) {
-  const box = selectEl.closest(".box");
-  const idgom = selectEl.value;
-
-  if (!idInfo[idgom]) return;
-
-  const estruturaInput = box.querySelectorAll("input")[1];
-  estruturaInput.value = idInfo[idgom].estrutura || "";
-}
-
-    // 3. BACKEND via FETCH (JSON normal)
+    // 2. COMUNICAÇÃO COM O BACKEND
     async function executarNoBackend(funcao, parametros = null) {
-  // Liga o loader automaticamente
-  mostrarLoader("Comunicando com o servidor...");
-  
-  const url =
-    `${WEB_APP_URL}?action=${funcao}` +
-    (parametros ? "&data=" + encodeURIComponent(JSON.stringify(parametros)) : "");
-    
-  try {
-    const response = await fetch(url);
-    const texto = await response.text();
-    const json = JSON.parse(texto);
-    
-    // Desliga o loader ao terminar com sucesso
-    esconderLoader();
-    return json;
-  } catch (e) {
-    // Desliga o loader em caso de erro
-    esconderLoader();
-    console.error("Erro na comunicação:", e);
-    return null;
-  }
-}
-
-    // ABAS
-    async function trocarAba(idAba, botao = null) {
-      // Esconde todas as seções
-      document.getElementById('cadastro').style.display = 'none';
-      document.getElementById('consulta').style.display = 'none';
-      document.getElementById('aba-timestamp').style.display = 'none';
-      
-      // Remove classe ativa de todos os botões
-      document.querySelectorAll(".aba-btn").forEach(btn => btn.classList.remove("ativa"));
-      
-      // Mostra a aba selecionada
-      const alvo = document.getElementById(idAba);
-      if(alvo) {
-        alvo.style.display = 'block';
-        alvo.classList.add("ativa");
-      }
-      if (botao) botao.classList.add("ativa");
-
-      // Lógica específica para o Timestamp
-      if (idAba === 'aba-timestamp') {
-        preencherCamposTimestamp(); // Sincroniza dados do cadastro
-        await abrirTimestampCompleto();
-      } else {
-        pararCamera(); // Desliga a câmera ao sair para economizar bateria
-      }
+        mostrarLoader("Comunicando com o servidor...");
+        const url = `${WEB_APP_URL}?action=${funcao}` + 
+                    (parametros ? "&data=" + encodeURIComponent(JSON.stringify(parametros)) : "");
+        
+        try {
+            const response = await fetch(url);
+            const texto = await response.text();
+            const json = JSON.parse(texto);
+            esconderLoader();
+            return json;
+        } catch (e) {
+            esconderLoader();
+            console.error("Erro na comunicação:", e);
+            return null;
+        }
     }
 
-    // 4. CARREGAMENTO INICIAL
-    // 4. CARREGAMENTO INICIAL (Versão Robusta)
+    // 3. CARREGAMENTO INICIAL
     async function carregarDadosIniciais() {
-      console.log("Iniciando carregamento...");
-      
-      try {
-        // Dispara todas as requisições ao mesmo tempo
-        const [listaSGM, listaVist, listaVozes, listaObs, listaTipos] = await Promise.all([
-          executarNoBackend("buscarListaSGM"),
-          executarNoBackend("buscarVistoriadores"),
-          executarNoBackend("buscarVozes"),
-          executarNoBackend("buscarObservacoes"),
-          executarNoBackend("buscarTiposEquipe")
-        ]);
+        try {
+            const [listaSGM, listaVist, listaVozes, listaObs, listaTipos] = await Promise.all([
+                executarNoBackend("buscarListaSGM"),
+                executarNoBackend("buscarVistoriadores"),
+                executarNoBackend("buscarVozes"),
+                executarNoBackend("buscarObservacoes"),
+                executarNoBackend("buscarTiposEquipe")
+            ]);
 
-        // Processa SGM
-        if (Array.isArray(listaSGM)) {
-          sgms = listaSGM;
-          atualizarListaSGM(sgms);
+            if (Array.isArray(listaSGM)) {
+                sgms = listaSGM;
+                atualizarListaSGM(sgms);
+            }
+
+            if (Array.isArray(listaVist)) {
+                const select = document.getElementById("vistoriador");
+                select.innerHTML = '<option value="">Selecione</option>';
+                listaVist.forEach(v => {
+                    const opt = document.createElement("option");
+                    opt.value = v; opt.textContent = v;
+                    select.appendChild(opt);
+                });
+            }
+
+            vozes = Array.isArray(listaVozes) ? listaVozes : [];
+            observacoes = Array.isArray(listaObs) ? listaObs : [];
+            tiposEquipe = Array.isArray(listaTipos) ? listaTipos : [];
+
+        } catch (err) {
+            console.error("Erro ao carregar dados:", err);
         }
-
-        // Processa Vistoriadores
-        if (Array.isArray(listaVist)) {
-          const select = document.getElementById("vistoriador");
-          select.innerHTML = '<option value="">Selecione</option>';
-          listaVist.forEach(v => {
-            const opt = document.createElement("option");
-            opt.value = v;
-            opt.textContent = v;
-            select.appendChild(opt);
-          });
-        }
-
-        // Processa Listas Fixas (Se vier null, usa array vazio [])
-        vozes = Array.isArray(listaVozes) ? listaVozes : [];
-        observacoes = Array.isArray(listaObs) ? listaObs : [];
-        tiposEquipe = Array.isArray(listaTipos) ? listaTipos : [];
-
-        console.log("Dados carregados. Vozes encontradas:", vozes.length);
-
-      } catch (err) {
-        console.error("Erro crítico ao carregar dados:", err);
-        alert("Erro ao conectar com a planilha. Verifique sua internet ou contate o administrador.");
-      }
     }
 
-    // 5. SGM AUTOCOMPLETE
-    function filtrarSGM() {
-      const valor = document.getElementById("sgm").value.toLowerCase();
-      const filtrados = sgms.filter(s => s.toLowerCase().includes(valor));
-      atualizarListaSGM(filtrados);
+    // 4. LÓGICA DE ABAS
+    async function trocarAba(idAba, botao = null) {
+        document.getElementById('cadastro').style.display = 'none';
+        document.getElementById('consulta').style.display = 'none';
+        document.getElementById('aba-timestamp').style.display = 'none';
+        
+        document.querySelectorAll(".aba-btn").forEach(btn => btn.classList.remove("ativa"));
+        
+        const alvo = document.getElementById(idAba);
+        if(alvo) alvo.style.display = 'block';
+        if (botao) botao.classList.add("ativa");
+
+        if (idAba === 'aba-timestamp') {
+            preencherCamposTimestamp();
+            await abrirTimestampCompleto();
+            if (!window.relogioAtivo) {
+                setInterval(atualizarRelogio, 1000);
+                window.relogioAtivo = true;
+            }
+        } else {
+            pararCamera();
+        }
     }
 
+    // 5. FUNÇÕES DE CADASTRO
     function atualizarListaSGM(lista) {
-      const datalist = document.getElementById("listaSGM");
-      datalist.innerHTML = "";
-      lista.forEach(sgm => {
-        const opt = document.createElement("option");
-        opt.value = sgm;
-        datalist.appendChild(opt);
-      });
+        const datalist = document.getElementById("listaSGM");
+        datalist.innerHTML = "";
+        lista.forEach(sgm => {
+            const opt = document.createElement("option");
+            opt.value = sgm;
+            datalist.appendChild(opt);
+        });
     }
 
     async function buscarSGM() {
-  const sgm = document.getElementById("sgm").value;
-  if (!sgm) return;
+        const sgm = document.getElementById("sgm").value;
+        if (!sgm) return;
+        const d = await executarNoBackend("buscarDadosSGM", { sgm });
+        if (!d) return;
+        alimentadores = d.alimentadores || [];
+        idsSGM = d.ids || [];
+        idInfo = d.idInfo || {};
+    }
 
-  const d = await executarNoBackend("buscarDadosSGM", { sgm });
-  if (!d) return;
+    function preencherEstrutura(selectEl) {
+        const box = selectEl.closest(".box");
+        const idgom = selectEl.value;
+        if (!idInfo[idgom]) return;
+        const estruturaInput = box.querySelectorAll("input")[1];
+        estruturaInput.value = idInfo[idgom].estrutura || "";
+    }
 
-  alimentadores = d.alimentadores || [];
-  idsSGM = d.ids || [];
-  idInfo = d.idInfo || {}; // ← ESSA LINHA
-}
-
-    // 6. CADASTRO (MESMA IDEIA DO HTML 1)
     function adicionarID() {
-  // ✅ trava se o SGM ainda não carregou os IDs
-  if (!idsSGM || idsSGM.length === 0) {
-    alert("Digite o SGM e depois clique fora do campo (ou aperte TAB/ENTER) para carregar os IDGOM antes de adicionar.");
-    return;
-  }
-
-  const div = document.createElement("div");
-  div.className = "box";
-  div.innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <strong style="color:#00AEEF">IDGOM</strong>
-      <button class="btn-excluir-id" onclick="excluirIDGOM(this)">🗑️ Excluir IDGOM</button>
-    </div>
-
-    <label>Alimentador</label>
-    <input list="listaAlimentador">
-    <datalist id="listaAlimentador">
-      ${alimentadores.map(a => `<option value="${a}">`).join("")}
-    </datalist>
-
-    <label>IDGOM</label>
-    <select onchange="preencherEstrutura(this)">
-      <option value="">Selecione</option>
-      ${idsSGM.map(i => `<option value="${i}">${i}</option>`).join("")}
-    </select>
-
-    <label>Estrutura</label>
-    <input type="text" readonly>
-
-    <div class="vozes"></div>
-    <button class="btn-voz" onclick="adicionarVoz(this)">➕ Adicionar Voz</button>
-  `;
-  document.getElementById("ids").appendChild(div);
-}
+        if (!idsSGM || idsSGM.length === 0) {
+            alert("Carregue um SGM válido primeiro.");
+            return;
+        }
+        const div = document.createElement("div");
+        div.className = "box";
+        div.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <strong style="color:#00AEEF">IDGOM</strong>
+                <button class="btn-excluir-id" onclick="excluirIDGOM(this)">🗑️</button>
+            </div>
+            <label>Alimentador</label>
+            <input list="listaAlimentador">
+            <datalist id="listaAlimentador">
+                ${alimentadores.map(a => `<option value="${a}">`).join("")}
+            </datalist>
+            <label>IDGOM</label>
+            <select onchange="preencherEstrutura(this)">
+                <option value="">Selecione</option>
+                ${idsSGM.map(i => `<option value="${i}">${i}</option>`).join("")}
+            </select>
+            <label>Estrutura</label>
+            <input type="text" readonly>
+            <div class="vozes"></div>
+            <button class="btn-voz" onclick="adicionarVoz(this)">➕ Voz</button>
+        `;
+        document.getElementById("ids").appendChild(div);
+    }
 
     function adicionarVoz(botao) {
-      const divVoz = document.createElement("div");
-      divVoz.className = "voz";
-      divVoz.innerHTML = `
-        <label>Voz</label>
-        <select>
-          ${vozes.map(v => `<option value="${v}">${v}</option>`).join("")}
-        </select>
-        <label>Quantidade</label>
-        <input type="number">
-        <label>Observação</label>
-        <select onchange="verificaWhats(this)">
-          ${observacoes.map(o => `<option value="${o}">${o}</option>`).join("")}
-        </select>
-        <label>Descrição</label>
-        <textarea></textarea>
-        <label>Tipo de Equipe</label>
-        <select>
-          ${tiposEquipe.map(t => `<option value="${t}">${t}</option>`).join("")}
-        </select>
-        <button class="whatsapp" style="display:none" onclick="enviarWhats(this)">📲 Enviar WhatsApp</button>
-        <button class="btn-excluir" onclick="excluirVoz(this)">🗑️ Excluir Voz</button>
-      `;
-      botao.previousElementSibling.appendChild(divVoz);
-    }
-
-    function normalizarTexto(valor) {
-      return String(valor || "")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .trim()
-        .toLowerCase();
-    }
-
-    function verificaWhats(select) {
-      const btn = select.closest(".voz")?.querySelector(".whatsapp");
-      if (!btn) return;
-      const observacao = normalizarTexto(select.value);
-      btn.style.display = observacao === "poda extra" ? "block" : "none";
-    }
-
-    function enviarWhats(btn) {
-      const box = btn.closest(".box");
-      const texto = `Projeto (SGM): ${document.getElementById("sgm").value}
-      Alimentador: ${box.querySelectorAll("input")[0].value}
-      Estrutura: ${box.querySelectorAll("input")[1].value}
-      IDGOM: ${box.querySelector("select").value}
-      Descrição: ${btn.parentElement.querySelector("textarea").value}`.trim();
-      window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`);
+        const divVoz = document.createElement("div");
+        divVoz.className = "voz";
+        divVoz.innerHTML = `
+            <label>Voz</label>
+            <select>${vozes.map(v => `<option value="${v}">${v}</option>`).join("")}</select>
+            <label>Qtd</label><input type="number">
+            <label>Obs</label>
+            <select onchange="verificaWhats(this)">${observacoes.map(o => `<option value="${o}">${o}</option>`).join("")}</select>
+            <label>Descrição</label><textarea></textarea>
+            <label>Equipe</label>
+            <select>${tiposEquipe.map(t => `<option value="${t}">${t}</option>`).join("")}</select>
+            <button class="whatsapp" style="display:none" onclick="enviarWhats(this)">📲 WhatsApp</button>
+            <button class="btn-excluir" onclick="excluirVoz(this)">🗑️</button>
+        `;
+        botao.previousElementSibling.appendChild(divVoz);
     }
 
     async function salvar() {
-      const payload = {
-        sgm: document.getElementById("sgm").value,
-        vistoriador: document.getElementById("vistoriador").value,
-        registros: []
-      };
+        const payload = {
+            sgm: document.getElementById("sgm").value,
+            vistoriador: document.getElementById("vistoriador").value,
+            registros: []
+        };
+        if (!payload.sgm || !payload.vistoriador) return alert("SGM e Vistoriador obrigatórios.");
 
-      if (!payload.sgm || !payload.vistoriador) {
-        return alert("SGM e Vistoriador são obrigatórios.");
-      }
-
-      document.querySelectorAll(".box").forEach(box => {
-        const inputs = box.querySelectorAll("input");
-        const alimentador = inputs[0].value;
-        const idgom = box.querySelector("select").value;
-        const estrutura = inputs[1].value;
-
-        box.querySelectorAll(".voz").forEach(v => {
-          const selects = v.querySelectorAll("select");
-          payload.registros.push({
-            alimentador, idgom, estrutura,
-            voz: selects[0].value,
-            quantidade: v.querySelector("input").value,
-            observacao: selects[1].value,
-            descricao: v.querySelector("textarea").value,
-            tipoEquipe: selects[2].value
-          });
+        document.querySelectorAll(".box").forEach(box => {
+            const alimentador = box.querySelectorAll("input")[0].value;
+            const idgom = box.querySelector("select").value;
+            const estrutura = box.querySelectorAll("input")[1].value;
+            box.querySelectorAll(".voz").forEach(v => {
+                const selects = v.querySelectorAll("select");
+                payload.registros.push({
+                    alimentador, idgom, estrutura,
+                    voz: selects[0].value,
+                    quantidade: v.querySelector("input").value,
+                    observacao: selects[1].value,
+                    descricao: v.querySelector("textarea").value,
+                    tipoEquipe: selects[2].value
+                });
+            });
         });
-      });
 
-      const senha = prompt("Digite sua senha:");
-      if (!senha) return alert("Senha obrigatória.");
-
-      const res = await executarNoBackend("salvarBaseComSenha", { payload, senha });
-      if (res && res.ok) {
-        alert("Dados salvos com sucesso!");
-        location.reload();
-      } else {
-        alert("Erro ou senha incorreta.");
-      }
+        const senha = prompt("Digite sua senha:");
+        if (!senha) return;
+        const res = await executarNoBackend("salvarBaseComSenha", { payload, senha });
+        if (res && res.ok) { alert("Sucesso!"); location.reload(); }
+        else { alert("Erro ou senha incorreta."); }
     }
 
-    function excluirVoz(botao) {
-      if (confirm("Deseja excluir esta voz?")) botao.closest(".voz").remove();
-    }
-
-    function excluirIDGOM(botao) {
-      if (confirm("Deseja excluir este IDGOM?")) botao.closest(".box").remove();
-    }
-
-    // -------------------------
-    // CONSULTA (aba que você queria)
-    // -------------------------
+    // 6. CONSULTA E EDIÇÃO
     async function consultarRegistros() {
-      const filtros = {
-        sgm: document.getElementById("qSgm").value,
-        idgom: document.getElementById("qId").value,
-        estrutura: document.getElementById("qEstrutura").value
-      };
-      const res = await executarNoBackend("consultarRegistros", filtros);
-      renderizarConsulta(res || []);
+        const filtros = {
+            sgm: document.getElementById("qSgm").value,
+            idgom: document.getElementById("qId").value,
+            estrutura: document.getElementById("qEstrutura").value
+        };
+        const res = await executarNoBackend("consultarRegistros", filtros);
+        renderizarConsulta(res || []);
     }
 
-    function limparConsulta() {
-      document.getElementById("qSgm").value = "";
-      document.getElementById("qId").value = "";
-      document.getElementById("qEstrutura").value = "";
-      document.getElementById("resultadoConsulta").innerHTML =
-        '<div class="vazio">Faça uma consulta para visualizar os registros.</div>';
-    }
-
-    // Helpers para aguentar nomes de colunas diferentes no Sheet
-    function pick(obj, keys, fallback = "") {
-      for (const k of keys) {
-        if (obj && obj[k] !== undefined && obj[k] !== null && String(obj[k]).trim() !== "") return obj[k];
-      }
-      return fallback;
-    }
-
-function renderizarConsulta(lista) {
-  const box = document.getElementById("resultadoConsulta");
-  if (!lista.length) {
-    box.innerHTML = '<div class="vazio">Nenhum registro encontrado.</div>';
-    return;
-  }
-  box.innerHTML = "";
-
-  lista.forEach(reg => {
-    // --- ATRIBUIÇÃO DAS VARIÁVEIS (A correção que você pediu) ---
-    const linha       = reg.linha;
-    const sgm         = reg.sgm || "-";
-    const idgom       = reg.idgom || "-";
-    const estrutura   = reg.estrutura || "-";
-    const alimentador = reg.alimentador || "-";
-    const voz         = reg.voz || "-";
-    const qtd         = reg.quantidade || "-";
-    const obs         = reg.observacao || "-";
-    const desc        = reg.descricao || "-";
-    const tipoEq      = reg.tipo_equipe || "-";
-    const vist        = reg.vistoriador || "-";
-    const data        = reg.data ? new Date(reg.data).toLocaleString() : "";
-
-    const grupo = document.createElement("div");
-    grupo.className = "resultado-grupo";
-    grupo.id = `grupo-${linha}`;
-
-    // --- MONTAGEM DO HTML USANDO AS VARIÁVEIS ---
-    grupo.innerHTML = `
-      <div class="resultado-header">
-        <div>SGM: <span id="val-sgm-${linha}">${sgm}</span> 
-             <span class="chip">IDGOM: <span id="val-idgom-${linha}">${idgom}</span></span></div>
-        <div class="muted">${data}</div>
-      </div>
-      <div class="resultado-item">
-        <div id="dados-${linha}">
-          <div class="linha-dados">
-            <div><strong>Estrutura:</strong> <span id="val-est-${linha}">${estrutura}</span></div>
-            <div><strong>Alimentador:</strong> <span id="val-alm-${linha}">${alimentador}</span></div>
-            <div><strong>Voz:</strong> <span id="val-voz-${linha}">${voz}</span></div>
-            <div><strong>Qtd:</strong> <span id="val-qtd-${linha}">${qtd}</span></div>
-            <div><strong>Tipo Equipe:</strong> <span id="val-teq-${linha}">${tipoEq}</span></div>
-            <div><strong>Vistoriador:</strong> <span id="val-vist-${linha}">${vist}</span></div>
-          </div>
-          <div class="muted"><strong>Obs:</strong> <span id="val-obs-${linha}">${obs}</span></div>
-          <div class="muted"><strong>Desc:</strong> <span id="val-desc-${linha}">${desc}</span></div>
-        </div>
-        <div class="acoes-consulta" id="acoes-${linha}">
-          <button class="btn-editar-mini" onclick="habilitarEdicao(${linha})">✏️ Editar</button>
-          <button class="btn-excluir-mini" onclick="excluirDireto(${linha})">🗑️ Excluir</button>
-        </div>
-      </div>
-    `;
-    box.appendChild(grupo);
-  });
-}
-
-async function editarDireto(linha) {
-  const novoVistoriador = document.getElementById("vistoriador").value;
-  
-  if (!novoVistoriador) {
-    alert("Por favor, selecione um Vistoriador na aba 'Cadastro' antes de atualizar.");
-    return;
-  }
-
-  if (confirm("Deseja atualizar este registro com o novo Vistoriador e Data Atual?")) {
-    // Reutiliza a rota existente 'editarRegistro', mas com a lógica nova
-    const res = await executarNoBackend("editarRegistro", { 
-      linha: linha, 
-      vistoriador: novoVistoriador 
-    });
-    
-    if (res && res.ok) {
-      alert("Registro atualizado!");
-      consultarRegistros(); // Recarrega a lista
-    }
-  }
-}
-
-async function excluirDireto(linha) {
-  if (confirm("Tem certeza que deseja excluir permanentemente este registro?")) {
-    // Reutiliza a rota existente 'excluirRegistro'
-    const res = await executarNoBackend("excluirRegistro", { linha: linha });
-    if (res && res.ok) {
-      alert("Registro excluído!");
-      consultarRegistros(); // Recarrega a lista
-    }
-  }
-}
-// Funções de Ação Direta na Consulta
-    async function editarDireto(linha) {
-      // Tenta pegar o vistoriador selecionado na aba Cadastro
-      const novoVistoriador = document.getElementById("vistoriador").value;
-      
-      if (!novoVistoriador) {
-        alert("Por favor, selecione um Vistoriador no topo da tela (aba Cadastro) antes de clicar em Atualizar.");
-        return;
-      }
-
-      if (confirm("Deseja atualizar este registro? A data/hora e o vistoriador serão atualizados para os valores atuais.")) {
-        // Envia para o backend usando a rota que já existe no seu Code.gs
-        const res = await executarNoBackend("editarRegistro", { 
-          payload: { 
-            id: linha, 
-            vistoriador: novoVistoriador 
-          } 
+    function renderizarConsulta(lista) {
+        const box = document.getElementById("resultadoConsulta");
+        box.innerHTML = lista.length ? "" : '<div class="vazio">Nenhum registro.</div>';
+        lista.forEach(reg => {
+            const linha = reg.linha;
+            const grupo = document.createElement("div");
+            grupo.className = "resultado-grupo";
+            grupo.innerHTML = `
+                <div class="resultado-header">
+                    <div>SGM: <span id="val-sgm-${linha}">${reg.sgm || "-"}</span> | ID: <span id="val-idgom-${linha}">${reg.idgom || "-"}</span></div>
+                    <div class="muted">${reg.data ? new Date(reg.data).toLocaleString() : ""}</div>
+                </div>
+                <div class="resultado-item">
+                    <div class="linha-dados">
+                        <strong>Estrutura:</strong> <span id="val-est-${linha}">${reg.estrutura || "-"}</span> |
+                        <strong>Voz:</strong> <span id="val-voz-${linha}">${reg.voz || "-"}</span> |
+                        <strong>Qtd:</strong> <span id="val-qtd-${linha}">${reg.quantidade || "-"}</span> |
+                        <strong>Vist:</strong> <span id="val-vist-${linha}">${reg.vistoriador || "-"}</span>
+                        <div class="muted"><strong>Obs:</strong> <span id="val-obs-${linha}">${reg.observacao || "-"}</span></div>
+                        <div class="muted"><strong>Desc:</strong> <span id="val-desc-${linha}">${reg.descricao || "-"}</span></div>
+                        <div style="display:none"><span id="val-alm-${linha}">${reg.alimentador || "-"}</span><span id="val-teq-${linha}">${reg.tipo_equipe || "-"}</span></div>
+                    </div>
+                    <div class="acoes-consulta" id="acoes-${linha}">
+                        <button class="btn-editar-mini" onclick="habilitarEdicao(${linha})">✏️ Editar</button>
+                        <button class="btn-excluir-mini" onclick="excluirDireto(${linha})">🗑️ Excluir</button>
+                    </div>
+                </div>`;
+            box.appendChild(grupo);
         });
-        
-        if (res && res.ok) {
-          alert("Registro atualizado com sucesso!");
-          consultarRegistros(); // Atualiza a lista na tela
-        } else {
-          alert("Erro ao atualizar: " + (res.error || "Erro desconhecido"));
-        }
-      }
+    }
+
+    function habilitarEdicao(linha) {
+        const ids = [`val-est-${linha}`, `val-voz-${linha}`, `val-qtd-${linha}`, `val-obs-${linha}`, `val-desc-${linha}`, `val-vist-${linha}`];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            el.innerHTML = `<input type="text" class="editando" id="input-${id}" value="${el.innerText}" style="width:100%">`;
+        });
+        document.getElementById(`acoes-${linha}`).innerHTML = `
+            <button class="btn-salvar-mini" onclick="salvarEdicao(${linha})">💾 Salvar</button>
+            <button onclick="consultarRegistros()">❌ Cancelar</button>`;
+    }
+
+    async function salvarEdicao(linha) {
+        const dados = {
+            linha: linha,
+            vistoriador: document.getElementById(`input-val-vist-${linha}`).value,
+            sgm: document.getElementById(`val-sgm-${linha}`).innerText,
+            idgom: document.getElementById(`val-idgom-${linha}`).innerText,
+            estrutura: document.getElementById(`input-val-est-${linha}`).value,
+            voz: document.getElementById(`input-val-voz-${linha}`).value,
+            quantidade: document.getElementById(`input-val-qtd-${linha}`).value,
+            observacao: document.getElementById(`input-val-obs-${linha}`).value,
+            descricao: document.getElementById(`input-val-desc-${linha}`).value,
+            alimentador: document.getElementById(`val-alm-${linha}`).innerText,
+            tipoEquipe: document.getElementById(`val-teq-${linha}`).innerText
+        };
+        const res = await executarNoBackend("editarRegistro", { payload: dados });
+        if (res && res.ok) { alert("Atualizado!"); consultarRegistros(); }
     }
 
     async function excluirDireto(linha) {
-      if (confirm("Tem certeza que deseja excluir permanentemente este registro da planilha?")) {
-        // Envia para o backend usando a rota que já existe no seu Code.gs
-        const res = await executarNoBackend("excluirRegistro", { id: linha });
-        
-        if (res && res.ok) {
-          alert("Registro excluído!");
-          consultarRegistros(); // Atualiza a lista na tela
-        } else {
-          alert("Erro ao excluir: " + (res.error || "Erro desconhecido"));
+        if (confirm("Excluir registro?")) {
+            const res = await executarNoBackend("excluirRegistro", { id: linha });
+            if (res && res.ok) consultarRegistros();
         }
-      }
     }
 
-function habilitarEdicao(linha) {
-  const campos = [
-    {id: `val-est-${linha}`},
-    {id: `val-alm-${linha}`},
-    {id: `val-voz-${linha}`},
-    {id: `val-qtd-${linha}`},
-    {id: `val-obs-${linha}`},
-    {id: `val-desc-${linha}`},
-    {id: `val-vist-${linha}`} // <-- ADICIONE ESTA LINHA
-  ];
+    // 7. TIMESTAMP E CÂMERA
+    async function abrirTimestampCompleto() {
+        mostrarLoader("Iniciando Câmera e GPS...");
+        try {
+            obterGps();
+            streamCamera = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+            document.getElementById('video').srcObject = streamCamera;
+        } catch (err) { alert("Permita Câmera/GPS no navegador."); }
+        esconderLoader();
+    }
 
-  campos.forEach(c => {
-    const el = document.getElementById(c.id);
-    const valorAtual = el.innerText;
-    // Transforma o texto em uma caixa de edição azulada
-    el.innerHTML = `<input type="text" class="editando" id="input-${c.id}" value="${valorAtual}" style="padding:2px 5px; margin:0; height:auto; width:100%;">`;
-  });
+    function pararCamera() {
+        if (streamCamera) {
+            streamCamera.getTracks().forEach(t => t.stop());
+            streamCamera = null;
+        }
+    }
 
-  // Troca os botões para Salvar/Cancelar
-  const divAcoes = document.getElementById(`acoes-${linha}`);
-  divAcoes.innerHTML = `
-    <button class="btn-salvar-mini" onclick="salvarEdicao(${linha})">💾 Salvar</button>
-    <button class="btn-limpar" style="padding:5px; font-size:11px" onclick="consultarRegistros()">❌ Sair</button>
-  `;
-}
+    function obterGps() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                document.getElementById("time-coords").innerText = `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`;
+            });
+        }
+    }
 
-    async function salvarEdicao(linha) {
-  // Agora pegamos o valor do INPUT que criamos na linha, não mais o do topo da página
-  const vistDigitado = document.getElementById(`input-val-vist-${linha}`).value;
+    function atualizarRelogio() {
+        document.getElementById("time-datahora").innerText = new Date().toLocaleString();
+    }
 
-  if (!vistDigitado) {
-    alert("O campo Vistoriador não pode ficar vazio.");
-    return;
-  }
+    function preencherCamposTimestamp() {
+        const sgm = document.getElementById("sgm").value;
+        const vist = document.getElementById("vistoriador").value;
+        document.getElementById("time-sgm").innerHTML = `<option value="${sgm}">${sgm || 'SGM não definido'}</option>`;
+        document.getElementById("time-vistoriador").innerHTML = `<option value="${vist}">${vist || 'Vistoriador não definido'}</option>`;
+        
+        const selCadastro = document.querySelector("#ids select");
+        if(selCadastro) document.getElementById("time-idgom").innerHTML = selCadastro.innerHTML;
+    }
 
-  const dados = {
-    linha: linha,
-    vistoriador: vistDigitado, // <-- Usa o nome que você editou
-    sgm: document.getElementById(`val-sgm-${linha}`).innerText,
-    idgom: document.getElementById(`val-idgom-${linha}`).innerText,
-    estrutura: document.getElementById(`input-val-est-${linha}`).value,
-    alimentador: document.getElementById(`input-val-alm-${linha}`).value,
-    voz: document.getElementById(`input-val-voz-${linha}`).value,
-    quantidade: document.getElementById(`input-val-qtd-${linha}`).value,
-    observacao: document.getElementById(`input-val-obs-${linha}`).value,
-    descricao: document.getElementById(`input-val-desc-${linha}`).value,
-    tipoEquipe: document.getElementById(`val-teq-${linha}`).innerText 
-  };
+    function tirarFoto() {
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0);
 
-  const res = await executarNoBackend("editarRegistro", { payload: dados });
-  if (res && res.ok) {
-    alert("Registro atualizado!");
-    consultarRegistros();
-  } else {
-    alert("Erro ao salvar alterações.");
-  }
-}
+        ctx.fillStyle = "white"; ctx.font = "20px Arial";
+        ctx.shadowColor = "black"; ctx.shadowBlur = 4;
+        
+        const txt = `SGM: ${document.getElementById("time-sgm").value} | ID: ${document.getElementById("time-idgom").value}`;
+        const loc = `Loc: ${document.getElementById("time-coords").innerText}`;
+        
+        ctx.fillText(txt, 20, canvas.height - 60);
+        ctx.fillText(loc, 20, canvas.height - 30);
 
-function mostrarLoader(texto = "Processando...") {
-  document.getElementById("loader-texto").innerText = texto;
-  document.getElementById("loader").style.display = "flex";
-}
+        const link = document.createElement('a');
+        link.download = `Foto_${Date.now()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }
 
-function esconderLoader() {
-  document.getElementById("loader").style.display = "none";
-}
-
-let localizacaoAtual = { lat: "", lng: "", endereco: "" };
-
-// Inicia o GPS e a Câmera quando abrir a aba
-async function abrirAbaTimestamp() {
-  mostrarLoader("Iniciando Câmera e GPS...");
-  document.getElementById('aba-timestamp').style.display = 'block';
-  document.getElementById('aba-cadastro').style.display = 'none';
-  document.getElementById('aba-consulta').style.display = 'none';
-  
-  iniciarCamera();
-  obterGps();
-  setInterval(atualizarRelogio, 1000);
-  esconderLoader();
-}
-
-function atualizarRelogio() {
-  const agora = new Date().toLocaleString();
-  document.getElementById("time-datahora").innerText = agora;
-}
-
-// Obtém Localização Real
-function obterGps() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
-      document.getElementById("time-coords").innerText = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-      localizacaoAtual.lat = lat;
-      localizacaoAtual.lng = lng;
-      
-      // Busca endereço simplificado (Reverso Geocoding via API gratuita se desejar ou apenas as coordenadas)
-      document.getElementById("time-endereco").innerText = "Coordenadas obtidas com sucesso";
-    });
-  }
-}
-
-// Configura Câmera
-async function iniciarCamera() {
-  const video = document.getElementById('video');
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
-    video.srcObject = stream;
-  } catch (err) {
-    alert("Erro ao acessar câmera: " + err);
-  }
-}
-
-function tirarFoto() {
-  const video = document.getElementById('video');
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
-  
-  // Define tamanho da foto igual ao vídeo
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  
-  // Desenha a foto
-  ctx.drawImage(video, 0, 0);
-  
-  // Adiciona Marca d'água (Timestamp)
-  ctx.fillStyle = "white";
-  ctx.font = "20px Arial";
-  ctx.shadowColor = "black";
-  ctx.shadowBlur = 4;
-  
-  const sgm = document.getElementById("time-sgm").value;
-  const id = document.getElementById("time-idgom").value;
-  const vist = document.getElementById("time-vistoriador").value;
-  const data = new Date().toLocaleString();
-  const coords = document.getElementById("time-coords").innerText;
-
-  ctx.fillText(`SGM: ${sgm} | ID: ${id}`, 20, canvas.height - 80);
-  ctx.fillText(`Vist: ${vist} | ${data}`, 20, canvas.height - 50);
-  ctx.fillText(`Loc: ${coords}`, 20, canvas.height - 20);
-
-  // Criar elemento de download
-  const link = document.createElement('a');
-  link.download = `Vistoria_${sgm}_${Date.now()}.png`;
-  link.href = canvas.toDataURL('image/png');
-  link.click(); // Salva no dispositivo automaticamente
-
-  // Adiciona na galeria visual do app
-  const imgPreview = document.createElement('img');
-  imgPreview.src = link.href;
-  imgPreview.style.width = "80px";
-  imgPreview.style.borderRadius = "5px";
-  document.getElementById("galeria-fotos").appendChild(imgPreview);
-}
-let streamCamera = null;
-
-async function abrirTimestampCompleto() {
-  mostrarLoader("Acessando Câmera e GPS...");
-  try {
-    obterGps();
-    const video = document.getElementById('video');
-    streamCamera = await navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: "environment" }, 
-      audio: false 
-    });
-    video.srcObject = streamCamera;
-  } catch (err) {
-    alert("Erro: Dê permissão de Câmera e GPS no navegador.");
-    console.error(err);
-  }
-  esconderLoader();
-}
-
-function pararCamera() {
-  if (streamCamera) {
-    streamCamera.getTracks().forEach(track => track.stop());
-    streamCamera = null;
-  }
-}
-
-function preencherCamposTimestamp() {
-  // Sincroniza o SGM e Vistoriador da aba Cadastro para o Timestamp
-  const sgmVal = document.getElementById("sgm").value;
-  const vistVal = document.getElementById("vistoriador").value;
-  
-  const tSgm = document.getElementById("time-sgm");
-  const tVist = document.getElementById("time-vistoriador");
-  const tIdgom = document.getElementById("time-idgom");
-
-  tSgm.innerHTML = `<option value="${sgmVal}">${sgmVal || 'SGM não definido'}</option>`;
-  tVist.innerHTML = `<option value="${vistVal}">${vistVal || 'Selecione no cadastro'}</option>`;
-  
-  // Copia os IDs disponíveis se houver algum selecionado
-  const idOriginal = document.querySelector(".box select");
-  if(idOriginal) {
-     tIdgom.innerHTML = idOriginal.innerHTML;
-     tIdgom.value = idOriginal.value;
-  } else {
-     tIdgom.innerHTML = '<option value="">Aguardando ID...</option>';
-  }
-}
+    // AUXILIARES
+    function mostrarLoader(t) { document.getElementById("loader-texto").innerText = t; document.getElementById("loader").style.display = "flex"; }
+    function esconderLoader() { document.getElementById("loader").style.display = "none"; }
+    function excluirVoz(b) { b.closest(".voz").remove(); }
+    function excluirIDGOM(b) { b.closest(".box").remove(); }
+    function normalizarTexto(v) { return String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase(); }
+    function verificaWhats(s) { const b = s.closest(".voz").querySelector(".whatsapp"); b.style.display = normalizarTexto(s.value) === "poda extra" ? "block" : "none"; }
 
     window.onload = carregarDadosIniciais;
-  </script>
+</script>
 </body>
 </html>
+
 
